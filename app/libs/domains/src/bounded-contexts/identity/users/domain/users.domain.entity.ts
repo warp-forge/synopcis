@@ -6,6 +6,7 @@ import {
   UUID,
   UseCase,
   ValueObject,
+  Command,
 } from '../../../../core';
 
 export type UserId = Identifier;
@@ -95,4 +96,4 @@ export interface LiftUserRestrictionCommand {
   readonly performedBy: UUID;
 }
 
-export type UserUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+export type UserUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

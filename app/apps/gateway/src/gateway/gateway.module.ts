@@ -2,12 +2,9 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
-import { PhenomenonController } from './phenomenon.controller';
-import { PhenomenonService } from './phenomenon.service';
-import { AchievementsController } from './achievements.controller';
 import { SharedKernelModule } from '@synop/shared-kernel';
 import { AchievementsModule, PhenomenonModule } from '@synop/domains';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -25,7 +22,7 @@ import { AuthModule } from './auth/auth.module';
       },
     ]),
   ],
-  controllers: [GatewayController, PhenomenonController, AchievementsController],
-  providers: [GatewayService, PhenomenonService],
+  controllers: [GatewayController],
+  providers: [GatewayService],
 })
 export class GatewayModule {}

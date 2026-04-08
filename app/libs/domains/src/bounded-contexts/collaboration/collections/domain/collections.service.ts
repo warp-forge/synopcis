@@ -2,11 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   COLLECTION_REPOSITORY,
   CollectionAggregate,
-  CollectionRepository,
   AddArticleToCollectionCommand,
   ChangeCollectionVisibilityCommand,
   CreateCollectionCommand,
   RemoveArticleFromCollectionCommand,
+} from './collections.domain.entity';
+import type {
+  CollectionRepository,
 } from './collections.domain.entity';
 
 @Injectable()

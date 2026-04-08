@@ -5,8 +5,10 @@ import {
   FailRenderCommand,
   RenderJobAggregate,
   RenderJobEvent,
-  RenderJobRepository,
   ScheduleRenderCommand,
+} from './rendering.domain.entity';
+import type {
+  RenderJobRepository,
 } from './rendering.domain.entity';
 
 @Injectable()

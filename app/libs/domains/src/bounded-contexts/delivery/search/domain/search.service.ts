@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   KNOWLEDGE_SEARCH_PORT,
-  KnowledgeSearchPort,
   SearchArticlesQuery,
   SearchConceptsQuery,
   SearchResult,
 } from './search.domain.entity';
-import { ArticleAggregate } from '../../knowledge/articles/domain/articles.domain.entity';
-import { ConceptAggregate } from '../../knowledge/concepts/domain/concepts.domain.entity';
+import type {
+  KnowledgeSearchPort,
+} from './search.domain.entity';
 
 @Injectable()
 export class SearchDomainService {
@@ -18,14 +18,14 @@ export class SearchDomainService {
 
   async searchArticles(
     query: SearchArticlesQuery,
-  ): Promise<readonly SearchResult<ArticleAggregate>[]> {
+  ): Promise<readonly SearchResult<any>[]> {
     // TODO: implement article search orchestration
     throw new Error('SearchDomainService.searchArticles not implemented');
   }
 
   async searchConcepts(
     query: SearchConceptsQuery,
-  ): Promise<readonly SearchResult<ConceptAggregate>[]> {
+  ): Promise<readonly SearchResult<any>[]> {
     // TODO: implement concept search orchestration
     throw new Error('SearchDomainService.searchConcepts not implemented');
   }

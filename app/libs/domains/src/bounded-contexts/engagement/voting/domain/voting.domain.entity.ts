@@ -54,4 +54,5 @@ export interface RetractVoteCommand {
   readonly performedBy: UUID;
 }
 
-export type VoteUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+import { Command } from '../../../../core';
+export type VoteUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

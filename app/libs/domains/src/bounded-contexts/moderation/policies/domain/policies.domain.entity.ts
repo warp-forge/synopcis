@@ -1,6 +1,4 @@
 import { DomainPolicy, Ownership, UUID } from '../../../../core';
-import { ArticleAggregate } from '../../knowledge/articles/domain/articles.domain.entity';
-import { BlockAggregate } from '../../knowledge/blocks/domain/blocks.domain.entity';
 
 export interface ModerationPolicyRegistry {
   readonly articleFreezePolicy: DomainPolicy<ArticleFreezeContext>;
@@ -11,13 +9,13 @@ export interface ModerationPolicyRegistry {
 export const MODERATION_POLICY_REGISTRY = Symbol('MODERATION_POLICY_REGISTRY');
 
 export interface ArticleFreezeContext {
-  readonly article: ArticleAggregate;
+  readonly article: any;
   readonly actorId: UUID;
   readonly reason: string;
 }
 
 export interface BlockSourceContext {
-  readonly block: BlockAggregate;
+  readonly block: any;
   readonly sourceUrl: string;
   readonly actorId: UUID;
 }

@@ -2,11 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   AI_TASK_REPOSITORY,
   AiTaskAggregate,
-  AiTaskRepository,
   CancelAiTaskCommand,
   CompleteAiTaskCommand,
   FailAiTaskCommand,
   RequestAiTaskCommand,
+} from './ai-tasks.domain.entity';
+import type {
+  AiTaskRepository,
 } from './ai-tasks.domain.entity';
 
 @Injectable()

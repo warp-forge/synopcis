@@ -2,10 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   DISCUSSION_REPOSITORY,
   DiscussionAggregate,
-  DiscussionRepository,
   AddCommentCommand,
   EditCommentCommand,
   ModerateCommentCommand,
+} from './discussions.domain.entity';
+import type {
+  DiscussionRepository,
 } from './discussions.domain.entity';
 
 @Injectable()

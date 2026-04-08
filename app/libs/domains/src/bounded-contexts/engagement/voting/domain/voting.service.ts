@@ -2,9 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   VOTE_REPOSITORY,
   VoteAggregate,
-  VoteRepository,
   CastVoteCommand,
   RetractVoteCommand,
+} from './voting.domain.entity';
+import type {
+  VoteRepository,
 } from './voting.domain.entity';
 
 @Injectable()

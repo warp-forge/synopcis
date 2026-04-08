@@ -1,12 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
-  GitAuthor,
-  GitCommitInput,
   TaskType,
   createTaskMessage,
 } from '@synop/shared-kernel';
 import { lastValueFrom } from 'rxjs';
+
+export interface GitAuthor {
+  name: string;
+  email: string;
+}
+
+export interface GitCommitInput {
+  repository: string;
+  summary: string;
+  sourceUrl: string;
+  author: GitAuthor;
+  changes: Record<string, string>;
+}
 import { PhenomenonDomainService } from './phenomenon.domain.service';
 import { PhenomenonEntity } from './phenomenon.entity';
 import { NewBlockInput } from './phenomenon.types';

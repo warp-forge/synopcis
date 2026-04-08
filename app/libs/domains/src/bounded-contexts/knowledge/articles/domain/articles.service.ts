@@ -28,7 +28,7 @@ export class ArticlesDomainService {
   async updateMetadata(
     command: UpdateArticleMetadataCommand,
   ): Promise<Article> {
-    const article = await this.repository.findOneBy({ id: command.articleId });
+    const article = await this.repository.findOneBy({ id: command.articleId as any });
     if (!article) {
       throw new Error('Article not found');
     }
@@ -43,7 +43,7 @@ export class ArticlesDomainService {
   async changeStatus(
     command: ChangeArticleStatusCommand,
   ): Promise<Article> {
-    const article = await this.repository.findOneBy({ id: command.articleId });
+    const article = await this.repository.findOneBy({ id: command.articleId as any });
     if (!article) {
       throw new Error('Article not found');
     }
@@ -53,7 +53,7 @@ export class ArticlesDomainService {
   }
 
   async freeze(command: FreezeArticleCommand): Promise<Article> {
-    const article = await this.repository.findOneBy({ id: command.articleId });
+    const article = await this.repository.findOneBy({ id: command.articleId as any });
     if (!article) {
       throw new Error('Article not found');
     }
@@ -65,7 +65,7 @@ export class ArticlesDomainService {
   async linkConcept(
     command: LinkArticleConceptCommand,
   ): Promise<Article> {
-    const article = await this.repository.findOneBy({ id: command.articleId });
+    const article = await this.repository.findOneBy({ id: command.articleId as any });
     if (!article) {
       throw new Error('Article not found');
     }

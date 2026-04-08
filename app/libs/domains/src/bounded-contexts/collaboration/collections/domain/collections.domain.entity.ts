@@ -9,8 +9,6 @@ import {
   UseCase,
   ValueObject,
 } from '../../../../core';
-import { ArticleId } from '../../knowledge/articles/domain/articles.domain.entity';
-
 export type CollectionId = Identifier;
 
 export interface CollectionProps {
@@ -21,7 +19,7 @@ export interface CollectionProps {
   readonly articles: readonly CollectionArticle[];
 }
 
-export interface CollectionArticle extends ValueObject<{ readonly articleId: ArticleId }> {
+export interface CollectionArticle extends ValueObject<{ readonly articleId: any }> {
   readonly addedAt: Date;
   readonly addedBy: UUID;
   readonly order: number;
@@ -40,10 +38,10 @@ export type CollectionEvent =
 export interface CollectionCreatedEvent extends DomainEvent<{ readonly title: string }> {}
 
 export interface CollectionArticleAddedEvent
-  extends DomainEvent<{ readonly articleId: ArticleId; readonly order: number }> {}
+  extends DomainEvent<{ readonly articleId: any; readonly order: number }> {}
 
 export interface CollectionArticleRemovedEvent
-  extends DomainEvent<{ readonly articleId: ArticleId }> {}
+  extends DomainEvent<{ readonly articleId: any }> {}
 
 export interface CollectionVisibilityChangedEvent
   extends DomainEvent<{ readonly isPublic: boolean }> {}
@@ -66,14 +64,14 @@ export interface CreateCollectionCommand {
 
 export interface AddArticleToCollectionCommand {
   readonly collectionId: CollectionId;
-  readonly articleId: ArticleId;
+  readonly articleId: any;
   readonly addedBy: UUID;
   readonly notes?: string;
 }
 
 export interface RemoveArticleFromCollectionCommand {
   readonly collectionId: CollectionId;
-  readonly articleId: ArticleId;
+  readonly articleId: any;
   readonly removedBy: UUID;
 }
 
@@ -83,4 +81,5 @@ export interface ChangeCollectionVisibilityCommand {
   readonly performedBy: UUID;
 }
 
-export type CollectionUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+import { Command } from '../../../../core';
+export type CollectionUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

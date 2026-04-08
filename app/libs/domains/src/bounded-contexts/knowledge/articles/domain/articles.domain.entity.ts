@@ -8,6 +8,7 @@ import {
   UUID,
   UseCase,
   ValueObject,
+  Command,
 } from '../../../../core';
 import { ConceptId } from '../../concepts/domain/concepts.domain.entity';
 
@@ -105,4 +106,4 @@ export interface LinkArticleConceptCommand {
   readonly performedBy: UUID;
 }
 
-export type ArticleUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+export type ArticleUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

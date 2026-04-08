@@ -2,11 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   ACHIEVEMENT_DEFINITION_REPOSITORY,
   AchievementDefinitionAggregate,
-  AchievementDefinitionRepository,
   CreateAchievementDefinitionCommand,
   EvaluateAchievementsCommand,
   USER_ACHIEVEMENT_REPOSITORY,
   UserAchievementAggregate,
+} from './achievements.domain.entity';
+import type {
+  AchievementDefinitionRepository,
   UserAchievementRepository,
 } from './achievements.domain.entity';
 

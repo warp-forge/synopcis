@@ -6,6 +6,7 @@ import {
   UUID,
   UseCase,
   ValueObject,
+  Command,
 } from '../../../../core';
 
 export type AiTaskId = Identifier;
@@ -92,4 +93,4 @@ export interface CancelAiTaskCommand {
   readonly cancelledBy: UUID;
 }
 
-export type AiTaskUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+export type AiTaskUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

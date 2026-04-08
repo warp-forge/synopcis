@@ -1,7 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { GatewayModule } from './gateway.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule);

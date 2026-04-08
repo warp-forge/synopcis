@@ -7,7 +7,6 @@ import {
   UseCase,
   ValueObject,
 } from '../../../../core';
-import { ArticleId } from '../../knowledge/articles/domain/articles.domain.entity';
 
 export type RenderJobId = Identifier;
 
@@ -18,7 +17,7 @@ export interface RenderManifest extends ValueObject<Record<string, unknown>> {
 }
 
 export interface RenderJobProps {
-  readonly articleId: ArticleId;
+  readonly articleId: any;
   readonly status: RenderJobStatus;
   readonly requestedBy: UUID;
   readonly manifest?: RenderManifest;
@@ -32,16 +31,16 @@ export interface RenderJobAggregate
 
 export interface RenderJobRepository
   extends RepositoryPort<RenderJobAggregate, RenderJobId> {
-  findLatestByArticle(articleId: ArticleId): Promise<RenderJobAggregate | null>;
+  findLatestByArticle(articleId: any): Promise<RenderJobAggregate | null>;
 }
 
 export const RENDER_JOB_REPOSITORY = Symbol('RENDER_JOB_REPOSITORY');
 
 export interface RenderJobEvent
-  extends DomainEvent<{ readonly articleId: ArticleId; readonly status: RenderJobStatus }> {}
+  extends DomainEvent<{ readonly articleId: any; readonly status: RenderJobStatus }> {}
 
 export interface ScheduleRenderCommand {
-  readonly articleId: ArticleId;
+  readonly articleId: any;
   readonly requestedBy: UUID;
 }
 
@@ -56,9 +55,9 @@ export interface FailRenderCommand {
 }
 
 export interface RenderingUseCases {
-  readonly scheduleRender: UseCase<ScheduleRenderCommand, RenderJobEvent>;
-  readonly completeRender: UseCase<CompleteRenderCommand, RenderJobEvent>;
-  readonly failRender: UseCase<FailRenderCommand, RenderJobEvent>;
+  readonly scheduleRender: UseCase<any, RenderJobEvent>;
+  readonly completeRender: UseCase<any, RenderJobEvent>;
+  readonly failRender: UseCase<any, RenderJobEvent>;
 }
 
 //TODO Implement render aggregate and integrate with markdown renderer adapter.
