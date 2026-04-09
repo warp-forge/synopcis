@@ -4,12 +4,14 @@ import React, { useState } from 'react';
 import { CardProperty } from '@/types/phenomenon';
 import { Card, Table, Text, Anchor, Group, ActionIcon, Tooltip, Modal, TextInput, Button, Stack } from '@mantine/core';
 import { IconEdit, IconThumbUp, IconPlus } from '@tabler/icons-react';
+import { voteForProperty, proposeAlternative, addProperty } from '../services/phenomenaApiService';
 
 interface PhenomenonCardProps {
+  phenomenonSlug: string;
   properties: CardProperty[];
 }
 
-export default function PhenomenonCard({ properties: initialProperties }: PhenomenonCardProps) {
+export default function PhenomenonCard({ phenomenonSlug, properties: initialProperties }: PhenomenonCardProps) {
   const [properties, setProperties] = useState<CardProperty[]>(initialProperties || []);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -22,9 +24,14 @@ export default function PhenomenonCard({ properties: initialProperties }: Phenom
 
   if (!properties || properties.length === 0) return null;
 
-  const handleVote = (index: number) => {
-    // Implement API call to handle vote
-    console.log(`Voted for property at index ${index}`);
+  const handleVote = async (index: number) => {
+    const prop = properties[index];
+    try {
+      await voteForProperty(phenomenonSlug, prop.property.slug, prop.value.slug);
+      console.log(`Successfully voted for property at index ${index}`);
+    } catch (error) {
+      console.error("Failed to vote for property", error);
+    }
   };
 
   const handleEditClick = (index: number) => {
@@ -37,15 +44,24 @@ export default function PhenomenonCard({ properties: initialProperties }: Phenom
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingIndex !== null) {
-      const updatedProps = [...properties];
-      updatedProps[editingIndex] = {
+      const newProperty = {
         property: { text: propText, slug: propSlug },
         value: { text: valText, slug: valSlug }
       };
-      setProperties(updatedProps);
-      setIsEditModalOpen(false);
+
+      try {
+        await proposeAlternative(phenomenonSlug, newProperty);
+
+        // Optimistically update the UI
+        const updatedProps = [...properties];
+        updatedProps[editingIndex] = newProperty;
+        setProperties(updatedProps);
+        setIsEditModalOpen(false);
+      } catch (error) {
+         console.error("Failed to propose alternative", error);
+      }
     }
   };
 
@@ -57,12 +73,21 @@ export default function PhenomenonCard({ properties: initialProperties }: Phenom
     setIsAddModalOpen(true);
   };
 
-  const handleSaveAdd = () => {
-    setProperties([...properties, {
-        property: { text: propText, slug: propSlug },
-        value: { text: valText, slug: valSlug }
-    }]);
-    setIsAddModalOpen(false);
+  const handleSaveAdd = async () => {
+    const newProperty = {
+      property: { text: propText, slug: propSlug },
+      value: { text: valText, slug: valSlug }
+    };
+
+    try {
+      await addProperty(phenomenonSlug, newProperty);
+
+      // Optimistically update UI
+      setProperties([...properties, newProperty]);
+      setIsAddModalOpen(false);
+    } catch(error) {
+      console.error("Failed to add property", error);
+    }
   };
 
   return (
