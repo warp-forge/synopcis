@@ -8,6 +8,10 @@ export enum TaskType {
   GENERATE_AI_DRAFT = 'generate.ai.draft',
   AI_DRAFT = 'ai.draft',
   GET_AI_SUGGESTIONS = 'get.ai.suggestions',
+  AI_EMBEDDING = 'ai.embedding',
+  AI_NER = 'ai.ner',
+  AI_VERIFY_SOURCE = 'ai.verify.source',
+  AI_TRANSLATE = 'ai.translate',
 
   GIT_INIT = 'git.init',
   GIT_COMMIT = 'git.commit',
