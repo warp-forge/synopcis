@@ -14,6 +14,7 @@ export default function PhenomenonView({ phenomenon }: { phenomenon: RenderableP
           <div style={{ position: 'absolute', top: 5, right: 5 }}>
              {block.alternativesCount > 0 && (
               <BlockAlternatives
+                slug={phenomenon.slug}
                 blockId={block.id}
                 alternatives={block.alternatives || []}
                 winningAlternativeFile={block.winningAlternativeFile || ""}

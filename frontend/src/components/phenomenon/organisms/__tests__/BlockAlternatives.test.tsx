@@ -26,6 +26,8 @@ window.ResizeObserver = jest.fn().mockImplementation(() => ({
     disconnect: jest.fn(),
 }));
 
+global.fetch = jest.fn();
+
 const mockAlternatives = [
   {
     alternative: {
@@ -50,10 +52,15 @@ const mockAlternatives = [
 ];
 
 describe('BlockAlternatives', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders button with correct alternative count', () => {
     render(
       <MantineProvider>
         <BlockAlternatives
+          slug="test-slug"
           blockId="block1"
           alternatives={mockAlternatives}
           winningAlternativeFile="alt1.md"
@@ -68,6 +75,7 @@ describe('BlockAlternatives', () => {
     render(
       <MantineProvider>
         <BlockAlternatives
+          slug="test-slug"
           blockId="block1"
           alternatives={mockAlternatives}
           winningAlternativeFile="alt1.md"
@@ -87,9 +95,12 @@ describe('BlockAlternatives', () => {
   });
 
   it('handles voting for an alternative', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+
     render(
       <MantineProvider>
         <BlockAlternatives
+          slug="test-slug"
           blockId="block1"
           alternatives={mockAlternatives}
           winningAlternativeFile="alt1.md"
@@ -106,14 +117,35 @@ describe('BlockAlternatives', () => {
     fireEvent.click(screen.getByRole('button', { name: /Vote \(10\)/i }));
 
     await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/phenomena/test-slug/blocks/block1/alternatives/vote', expect.anything());
+    });
+
+    await waitFor(() => {
       expect(screen.getByRole('button', { name: /Vote \(11\)/i })).toBeInTheDocument();
     });
   });
 
   it('handles proposing a new alternative', async () => {
+    const mockNewAlternative = {
+      alternative: {
+        file: 'proposed-123.md',
+        lang: 'en',
+        votes: 1,
+        source: null,
+        trust_score: 0,
+      },
+      content: 'New Proposed Content',
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ alternative: mockNewAlternative })
+    });
+
     render(
       <MantineProvider>
         <BlockAlternatives
+          slug="test-slug"
           blockId="block1"
           alternatives={mockAlternatives}
           winningAlternativeFile="alt1.md"
@@ -135,6 +167,10 @@ describe('BlockAlternatives', () => {
 
     fireEvent.change(screen.getByRole('textbox', { name: /Content/i }), { target: { value: 'New Proposed Content' } });
     fireEvent.click(screen.getByRole('button', { name: /Submit Proposal/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/phenomena/test-slug/blocks/block1/alternatives/propose', expect.anything());
+    });
 
     await waitFor(() => {
       expect(screen.getByText('New Proposed Content')).toBeInTheDocument();
