@@ -1,7 +1,5 @@
-1. **Rework cancellation and introduce `AbortController` (or similar token):**
-   - Update `runWithRetry` to accept a cancellation token and check it before proceeding.
-   - If cancelled during execution, prevent it from overriding the cancelled state.
-2. **Implement Task History Persistence:**
-   - Modify the `tasks` storage. Currently it's a Map. The reviewer expects persistence "so they survive restarts and satisfy the storage requirement".
-   - Since creating full TypeORM entities in `worker-ai` might over-complicate and break the "minimal" constraint unless expected, I will implement a simpler filesystem-based JSON persistence mechanism or check if a Redis/DB service is directly available to inject without altering `domains` too much.
-   - *Wait*, let's check `shared-kernel` or the `package.json` to see if a simple local file persistence is what they meant, or if a TypeORM entity in the app is required.
+1. Refactor `worker-ai.service.ts` to not write state directly to the filesystem at `data/tasks.json` within the source directory.
+2. If TypeORM/DB persistence is still deemed out of scope by the reviewer (they say "Move runtime state out of committed source files"), we can either use an environment variable for the path like `PROCESS_DATA_DIR` that defaults to `/tmp/worker-ai-state`, or we can simply use Postgres.
+   Wait, the reviewer said "multi-instance/concurrent workers will race on the same local file." That strongly implies that local file persistence is entirely flawed for this system design. I should integrate a database persistence.
+   Let's see if we have `SharedKernelService` or similar that exports a database connection or if `AiTaskRepository` exists. Let's look up how other domains do this.
+3. If TypeORM is too much, I'll write a simple `app/apps/worker-ai/src/worker-ai-task.entity.ts` and use TypeORM `Repository<AiTaskEntity>`.

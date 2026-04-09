@@ -1,12 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WorkerAiService } from './worker-ai.service';
 import { MarkdownRenderer } from '@synop/shared-kernel';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { AiTaskEntity } from './worker-ai.entity';
 
 describe('WorkerAiService', () => {
   let service: WorkerAiService;
   let renderer: MarkdownRenderer;
+  let mockRepository: any;
 
   beforeEach(async () => {
+    mockRepository = {
+      findOne: jest.fn(),
+      findOneOrFail: jest.fn(),
+      create: jest.fn(),
+      save: jest.fn(),
+      count: jest.fn(),
+      find: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WorkerAiService,
@@ -16,6 +28,10 @@ describe('WorkerAiService', () => {
             render: jest.fn((text) => text),
           },
         },
+        {
+          provide: getRepositoryToken(AiTaskEntity),
+          useValue: mockRepository,
+        }
       ],
     }).compile();
 
@@ -35,6 +51,11 @@ describe('WorkerAiService', () => {
         payload: { articleSlug: 'test', sourceUrl: 'http://test' },
       };
 
+      const entity = { id: '1', status: 'pending', attempts: 0, payload: task.payload };
+      mockRepository.findOne.mockResolvedValueOnce(null);
+      mockRepository.create.mockReturnValue(entity);
+      mockRepository.findOneOrFail.mockResolvedValue(entity);
+
       const result = await service.analyzeSource(task);
 
       expect(result).toEqual({
@@ -43,11 +64,7 @@ describe('WorkerAiService', () => {
         status: 'completed',
         detail: 'analysis prepared for test',
       });
-
-      const state = service.getTask('1');
-      expect(state).toBeDefined();
-      expect(state?.status).toBe('completed');
-      expect(state?.attempts).toBe(1);
+      expect(entity.status).toBe('completed');
     });
 
     it('should retry on failure and eventually succeed', async () => {
@@ -57,7 +74,11 @@ describe('WorkerAiService', () => {
         payload: { articleSlug: 'test', sourceUrl: 'http://test' },
       };
 
-      // Mock renderer to throw twice, then succeed
+      const entity = { id: '2', status: 'pending', attempts: 0, payload: task.payload };
+      mockRepository.findOne.mockResolvedValueOnce(null);
+      mockRepository.create.mockReturnValue(entity);
+      mockRepository.findOneOrFail.mockResolvedValue(entity);
+
       let count = 0;
       (renderer.render as jest.Mock).mockImplementation(() => {
         count++;
@@ -70,8 +91,7 @@ describe('WorkerAiService', () => {
       const result = await service.analyzeSource(task);
 
       expect(result.status).toBe('completed');
-      const state = service.getTask('2');
-      expect(state?.attempts).toBe(3);
+      expect(entity.attempts).toBe(3);
     });
 
     it('should fail after max retries and trigger critical failure', async () => {
@@ -81,7 +101,11 @@ describe('WorkerAiService', () => {
         payload: { articleSlug: 'test', sourceUrl: 'http://test' },
       };
 
-      // Spy on logger
+      const entity = { id: '3', status: 'pending', attempts: 0, payload: task.payload };
+      mockRepository.findOne.mockResolvedValueOnce(null);
+      mockRepository.create.mockReturnValue(entity);
+      mockRepository.findOneOrFail.mockResolvedValue(entity);
+
       const loggerSpy = jest.spyOn((service as any).logger, 'error');
 
       (renderer.render as jest.Mock).mockImplementation(() => {
@@ -91,9 +115,8 @@ describe('WorkerAiService', () => {
       const result = await service.analyzeSource(task);
 
       expect(result.status).toBe('failed');
-      const state = service.getTask('3');
-      expect(state?.attempts).toBe(3);
-      expect(state?.status).toBe('failed');
+      expect(entity.attempts).toBe(3);
+      expect(entity.status).toBe('failed');
 
       expect(loggerSpy).toHaveBeenCalledWith(
         expect.stringContaining('CRITICAL FAILURE'),
@@ -103,59 +126,39 @@ describe('WorkerAiService', () => {
   });
 
   describe('cancelTask', () => {
-    it('should cancel a pending task', () => {
-       // We can directly manipulate internal task map or create one by restarting a non-existent task
-       // but simpler is to mock runWithRetry blocking, instead let's just initialize a task via internal methods.
-       (service as any).tasks.set('4', {
-         status: 'pending',
-         attempts: 0,
-         task: { id: '4' },
-         updatedAt: new Date()
-       });
+    it('should cancel a pending task', async () => {
+       const entity = { id: '4', status: 'pending' };
+       mockRepository.findOne.mockResolvedValue(entity);
 
-       const result = service.cancelTask('4');
+       const result = await service.cancelTask('4');
        expect(result).toBe(true);
-       expect(service.getTask('4')?.status).toBe('cancelled');
+       expect(entity.status).toBe('cancelled');
     });
 
     it('should not cancel a completed task', async () => {
-      const task: any = {
-        id: '5',
-        type: 'analyze.source',
-        payload: { articleSlug: 'test', sourceUrl: 'http://test' },
-      };
-      await service.analyzeSource(task);
+       const entity = { id: '5', status: 'completed' };
+       mockRepository.findOne.mockResolvedValue(entity);
 
-      const result = service.cancelTask('5');
-      expect(result).toBe(false);
-      expect(service.getTask('5')?.status).toBe('completed');
+       const result = await service.cancelTask('5');
+       expect(result).toBe(false);
+       expect(entity.status).toBe('completed');
     });
   });
 
   describe('restartTask', () => {
     it('should restart a failed task', async () => {
-       (service as any).tasks.set('6', {
-         status: 'failed',
-         attempts: 3,
-         task: { id: '6', type: 'analyze.source', payload: { articleSlug: 'test', sourceUrl: 'http://test'} },
-         updatedAt: new Date()
-       });
+       const entity = { id: '6', type: 'analyze.source', status: 'failed', payload: {} };
+       mockRepository.findOne.mockResolvedValue(entity);
+       mockRepository.findOneOrFail.mockResolvedValue(entity);
 
        const result = await service.restartTask('6');
        expect(result).toBeDefined();
-       expect(result.status).toBe('completed');
-       const state = service.getTask('6');
-       expect(state?.status).toBe('completed');
-       expect(state?.attempts).toBe(1);
+       expect(entity.status).toBe('completed');
     });
 
     it('should not restart a completed task', async () => {
-       (service as any).tasks.set('7', {
-         status: 'completed',
-         attempts: 1,
-         task: { id: '7' },
-         updatedAt: new Date()
-       });
+       const entity = { id: '7', status: 'completed' };
+       mockRepository.findOne.mockResolvedValue(entity);
 
        const result = await service.restartTask('7');
        expect(result).toBeUndefined();

@@ -33,8 +33,8 @@ export class WorkerAiController {
   }
 
   @Get('tasks/:id')
-  getTask(@Param('id') id: string) {
-    const task = this.workerAiService.getTask(id);
+  async getTask(@Param('id') id: string) {
+    const task = await this.workerAiService.getTask(id);
     if (!task) {
       throw new NotFoundException(`Task with id ${id} not found`);
     }
@@ -42,8 +42,8 @@ export class WorkerAiController {
   }
 
   @Post('tasks/:id/cancel')
-  cancelTask(@Param('id') id: string) {
-    const success = this.workerAiService.cancelTask(id);
+  async cancelTask(@Param('id') id: string) {
+    const success = await this.workerAiService.cancelTask(id);
     if (!success) {
       throw new BadRequestException(`Task with id ${id} could not be cancelled. It might not exist or is already completed/failed/cancelled.`);
     }

@@ -1,7 +1,8 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { MarkdownRenderer, TaskMessage } from '@synop/shared-kernel';
-import * as fs from 'fs';
-import * as path from 'path';
+import { AiTaskEntity } from './worker-ai.entity';
 
 export type TaskStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
 
@@ -31,61 +32,15 @@ type SuggestionsPayload = {
 };
 
 @Injectable()
-export class WorkerAiService implements OnModuleInit, OnModuleDestroy {
-  private readonly processed: AnalysisRecord[] = [];
-  private readonly tasks = new Map<string, TaskState>();
+export class WorkerAiService {
   private readonly logger = new Logger(WorkerAiService.name);
   private readonly MAX_RETRIES = 3;
-  private readonly dataDir = path.join(__dirname, '..', 'data');
-  private readonly stateFile = path.join(this.dataDir, 'tasks.json');
 
-  constructor(private readonly renderer: MarkdownRenderer) {}
-
-  onModuleInit() {
-    this.loadState();
-  }
-
-  onModuleDestroy() {
-    this.saveState();
-  }
-
-  private loadState() {
-    try {
-      if (fs.existsSync(this.stateFile)) {
-        const data = fs.readFileSync(this.stateFile, 'utf8');
-        const parsed = JSON.parse(data);
-        for (const [key, val] of Object.entries(parsed)) {
-          const state = val as TaskState;
-          state.updatedAt = new Date(state.updatedAt);
-          // If a task was processing when it shut down, mark it failed to allow restart
-          if (state.status === 'processing') {
-            state.status = 'failed';
-            state.error = 'Worker restarted during processing';
-          }
-          this.tasks.set(key, state);
-        }
-        this.logger.log(`Loaded ${this.tasks.size} tasks from state file.`);
-      }
-    } catch (err) {
-      this.logger.error('Failed to load state', err);
-    }
-  }
-
-  private saveState() {
-    try {
-      if (!fs.existsSync(this.dataDir)) {
-        fs.mkdirSync(this.dataDir, { recursive: true });
-      }
-      const obj = Object.fromEntries(this.tasks);
-      fs.writeFileSync(this.stateFile, JSON.stringify(obj, null, 2));
-    } catch (err) {
-      this.logger.error('Failed to save state', err);
-    }
-  }
-
-  private persist() {
-    this.saveState();
-  }
+  constructor(
+    private readonly renderer: MarkdownRenderer,
+    @InjectRepository(AiTaskEntity)
+    private readonly taskRepository: Repository<AiTaskEntity>,
+  ) {}
 
   private notifyCriticalFailure(task: TaskMessage<any>, error: Error) {
     this.logger.error(
@@ -107,12 +62,12 @@ export class WorkerAiService implements OnModuleInit, OnModuleDestroy {
         throw new Error('Task was cancelled');
       }
 
-      this.processed.push({
-        id: task.id,
-        articleSlug: payload.articleSlug,
+      // Store results in payload
+      state.payload = state.payload || {};
+      state.payload.result = {
         renderedSummary,
         completedAt: new Date(),
-      });
+      };
 
       return {
         taskId: task.id,
@@ -139,6 +94,9 @@ export class WorkerAiService implements OnModuleInit, OnModuleDestroy {
         throw new Error('Task was cancelled');
       }
 
+      state.payload = state.payload || {};
+      state.payload.result = suggestions;
+
       return {
         taskId: task.id,
         type: task.type,
@@ -149,59 +107,60 @@ export class WorkerAiService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  private async runWithRetry<T>(task: TaskMessage<T>, handler: (state: TaskState) => Promise<any> | any) {
-    let state = this.tasks.get(task.id);
-    if (!state) {
-      state = {
+  private async runWithRetry<T>(task: TaskMessage<T>, handler: (entity: AiTaskEntity) => Promise<any> | any) {
+    let entity = await this.taskRepository.findOne({ where: { id: task.id } });
+    if (!entity) {
+      entity = this.taskRepository.create({
+        id: task.id,
+        type: task.type,
         status: 'pending',
         attempts: 0,
-        task,
-        updatedAt: new Date(),
-      };
-      this.tasks.set(task.id, state);
-      this.persist();
+        payload: task.payload,
+      });
+      await this.taskRepository.save(entity);
     }
 
-    if (state.status === 'cancelled') {
+    if (entity.status === 'cancelled') {
       return { taskId: task.id, type: task.type, status: 'cancelled' };
     }
 
-    while (state.attempts < this.MAX_RETRIES) {
-      if (state.status === 'cancelled') {
+    while (entity.attempts < this.MAX_RETRIES) {
+      // Reload to catch cancellations
+      entity = await this.taskRepository.findOneOrFail({ where: { id: task.id } });
+      if (entity.status === 'cancelled') {
         return { taskId: task.id, type: task.type, status: 'cancelled' };
       }
 
-      state.status = 'processing';
-      state.attempts += 1;
-      state.updatedAt = new Date();
-      this.persist();
+      entity.status = 'processing';
+      entity.attempts += 1;
+      await this.taskRepository.save(entity);
 
       try {
-        const result = await handler(state);
+        const result = await handler(entity);
 
-        // If it got cancelled during handler wait, override
-        if (state.status === 'cancelled') {
+        // Final load
+        entity = await this.taskRepository.findOneOrFail({ where: { id: task.id } });
+        if (entity.status === 'cancelled') {
            return { taskId: task.id, type: task.type, status: 'cancelled' };
         }
 
-        state.status = 'completed';
-        state.error = undefined;
-        state.updatedAt = new Date();
-        this.persist();
+        entity.status = 'completed';
+        entity.error = null;
+        await this.taskRepository.save(entity);
         return result;
       } catch (error) {
-        if (state.status === 'cancelled') {
+        entity = await this.taskRepository.findOneOrFail({ where: { id: task.id } });
+        if (entity.status === 'cancelled') {
            return { taskId: task.id, type: task.type, status: 'cancelled' };
         }
 
         const err = error instanceof Error ? error : new Error(String(error));
-        this.logger.warn(`Task ${task.id} attempt ${state.attempts} failed: ${err.message}`);
+        this.logger.warn(`Task ${task.id} attempt ${entity.attempts} failed: ${err.message}`);
 
-        if (state.attempts >= this.MAX_RETRIES) {
-          state.status = 'failed';
-          state.error = err.message;
-          state.updatedAt = new Date();
-          this.persist();
+        if (entity.attempts >= this.MAX_RETRIES) {
+          entity.status = 'failed';
+          entity.error = err.message;
+          await this.taskRepository.save(entity);
           this.notifyCriticalFailure(task, err);
           return {
             taskId: task.id,
@@ -214,69 +173,66 @@ export class WorkerAiService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  getTask(id: string): TaskState | undefined {
-    return this.tasks.get(id);
+  async getTask(id: string): Promise<AiTaskEntity | null> {
+    return this.taskRepository.findOne({ where: { id } });
   }
 
-  cancelTask(id: string): boolean {
-    const state = this.tasks.get(id);
-    if (!state) {
+  async cancelTask(id: string): Promise<boolean> {
+    const entity = await this.taskRepository.findOne({ where: { id } });
+    if (!entity) {
       return false;
     }
 
-    if (state.status === 'completed' || state.status === 'failed' || state.status === 'cancelled') {
+    if (entity.status === 'completed' || entity.status === 'failed' || entity.status === 'cancelled') {
       return false; // Can't cancel already finished tasks
     }
 
-    state.status = 'cancelled';
-    state.updatedAt = new Date();
-    this.persist();
+    entity.status = 'cancelled';
+    await this.taskRepository.save(entity);
     return true;
   }
 
   async restartTask(id: string): Promise<any | undefined> {
-    const state = this.tasks.get(id);
-    if (!state) {
+    const entity = await this.taskRepository.findOne({ where: { id } });
+    if (!entity) {
       return undefined;
     }
 
-    if (state.status !== 'failed' && state.status !== 'cancelled') {
+    if (entity.status !== 'failed' && entity.status !== 'cancelled') {
       return undefined; // Only failed or cancelled tasks can be restarted
     }
 
-    state.status = 'pending';
-    state.attempts = 0;
-    state.error = undefined;
-    state.updatedAt = new Date();
-    this.persist();
+    entity.status = 'pending';
+    entity.attempts = 0;
+    entity.error = null;
+    await this.taskRepository.save(entity);
 
     // Re-dispatch task based on type
-    if (state.task.type === 'analyze.source') {
-      return this.analyzeSource(state.task);
-    } else if (state.task.type === 'get.ai.suggestions') {
-      return this.getAiSuggestions(state.task);
+    const task: TaskMessage<any> = {
+      id: entity.id,
+      type: entity.type as any,
+      payload: entity.payload,
+      createdAt: entity.createdAt,
+      priority: 'normal'
+    };
+
+    if (entity.type === 'analyze.source') {
+      return this.analyzeSource(task);
+    } else if (entity.type === 'get.ai.suggestions') {
+      return this.getAiSuggestions(task);
     }
 
     return undefined;
   }
 
-  getAnalytics() {
-    const total = this.tasks.size;
-    let pending = 0;
-    let processing = 0;
-    let completed = 0;
-    let failed = 0;
-    let cancelled = 0;
-
-    for (const state of this.tasks.values()) {
-      switch (state.status) {
-        case 'pending': pending++; break;
-        case 'processing': processing++; break;
-        case 'completed': completed++; break;
-        case 'failed': failed++; break;
-        case 'cancelled': cancelled++; break;
-      }
-    }
+  async getAnalytics() {
+    const total = await this.taskRepository.count();
+    const pending = await this.taskRepository.count({ where: { status: 'pending' } });
+    const processing = await this.taskRepository.count({ where: { status: 'processing' } });
+    const completed = await this.taskRepository.count({ where: { status: 'completed' } });
+    const failed = await this.taskRepository.count({ where: { status: 'failed' } });
+    const cancelled = await this.taskRepository.count({ where: { status: 'cancelled' } });
+    const processedAnalyses = await this.taskRepository.count({ where: { type: 'analyze.source', status: 'completed' } });
 
     return {
       total,
@@ -285,18 +241,30 @@ export class WorkerAiService implements OnModuleInit, OnModuleDestroy {
       completed,
       failed,
       cancelled,
-      processedAnalyses: this.processed.length,
+      processedAnalyses,
     };
   }
 
-  status() {
+  async status() {
+    const processed = await this.taskRepository.count({ where: { type: 'analyze.source', status: 'completed' } });
     return {
       status: 'ready',
-      processed: this.processed.length,
+      processed,
     };
   }
 
-  recentAnalyses(limit = 5): AnalysisRecord[] {
-    return this.processed.slice(-limit).reverse();
+  async recentAnalyses(limit = 5) {
+    const records = await this.taskRepository.find({
+      where: { type: 'analyze.source', status: 'completed' },
+      order: { completedAt: 'DESC' },
+      take: limit,
+    });
+
+    return records.map(r => ({
+      id: r.id,
+      articleSlug: r.payload.articleSlug,
+      renderedSummary: r.payload.result?.renderedSummary,
+      completedAt: r.payload.result?.completedAt || r.updatedAt,
+    }));
   }
 }

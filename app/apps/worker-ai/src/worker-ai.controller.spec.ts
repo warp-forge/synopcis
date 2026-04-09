@@ -14,11 +14,11 @@ describe('WorkerAiController', () => {
         {
           provide: WorkerAiService,
           useValue: {
-            status: jest.fn(() => ({
+            status: jest.fn(() => Promise.resolve({
               status: 'ready',
               processed: 0,
             })),
-            recentAnalyses: jest.fn(() => []),
+            recentAnalyses: jest.fn(() => Promise.resolve([])),
             getAnalytics: jest.fn(),
             getTask: jest.fn(),
             cancelTask: jest.fn(),
@@ -32,40 +32,40 @@ describe('WorkerAiController', () => {
     service = module.get(WorkerAiService);
   });
 
-  it('reports the worker status', () => {
-    expect(controller.health()).toEqual({ status: 'ready', processed: 0 });
+  it('reports the worker status', async () => {
+    expect(await controller.health()).toEqual({ status: 'ready', processed: 0 });
   });
 
-  it('should return analytics', () => {
+  it('should return analytics', async () => {
     const mockAnalytics = { total: 0, pending: 0, processing: 0, completed: 0, failed: 0, cancelled: 0, processedAnalyses: 0 };
-    jest.spyOn(service, 'getAnalytics').mockReturnValue(mockAnalytics);
+    jest.spyOn(service, 'getAnalytics').mockResolvedValue(mockAnalytics as any);
 
-    expect(controller.getAnalytics()).toEqual(mockAnalytics);
+    expect(await controller.getAnalytics()).toEqual(mockAnalytics);
   });
 
-  it('should get task by id', () => {
+  it('should get task by id', async () => {
     const mockTaskState: any = { status: 'pending' };
-    jest.spyOn(service, 'getTask').mockReturnValue(mockTaskState);
+    jest.spyOn(service, 'getTask').mockResolvedValue(mockTaskState);
 
-    expect(controller.getTask('123')).toEqual(mockTaskState);
+    expect(await controller.getTask('123')).toEqual(mockTaskState);
   });
 
-  it('should throw NotFoundException if task not found', () => {
-    jest.spyOn(service, 'getTask').mockReturnValue(undefined);
+  it('should throw NotFoundException if task not found', async () => {
+    jest.spyOn(service, 'getTask').mockResolvedValue(null);
 
-    expect(() => controller.getTask('123')).toThrow('Task with id 123 not found');
+    await expect(controller.getTask('123')).rejects.toThrow('Task with id 123 not found');
   });
 
-  it('should cancel a task', () => {
-    jest.spyOn(service, 'cancelTask').mockReturnValue(true);
+  it('should cancel a task', async () => {
+    jest.spyOn(service, 'cancelTask').mockResolvedValue(true);
 
-    expect(controller.cancelTask('123')).toEqual({ status: 'cancelled', id: '123' });
+    expect(await controller.cancelTask('123')).toEqual({ status: 'cancelled', id: '123' });
   });
 
-  it('should throw BadRequestException if task cannot be cancelled', () => {
-    jest.spyOn(service, 'cancelTask').mockReturnValue(false);
+  it('should throw BadRequestException if task cannot be cancelled', async () => {
+    jest.spyOn(service, 'cancelTask').mockResolvedValue(false);
 
-    expect(() => controller.cancelTask('123')).toThrow();
+    await expect(controller.cancelTask('123')).rejects.toThrow();
   });
 
   it('should restart a task', async () => {
