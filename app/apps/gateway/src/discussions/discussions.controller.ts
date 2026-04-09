@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   Inject,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -112,10 +113,25 @@ export class DiscussionsController {
     @Param('commentId') commentId: string,
     @Request() req,
   ) {
+    const discussion = await this.repository.findById(discussionId);
+    if (!discussion) {
+      throw new ForbiddenException('Comment not found');
+    }
+    const comment = discussion.props.comments.find(
+      (c) => c.id.value === commentId,
+    );
+    if (!comment) {
+      throw new ForbiddenException('Comment not found');
+    }
+
+    if (comment.author.value.userId !== req.user.id) {
+      throw new ForbiddenException('You can only delete your own comments');
+    }
+
     await this.discussionsService.moderateComment({
       discussionId: { value: discussionId },
       commentId: { value: commentId },
-      moderatorId: req.user.id,
+      moderatorId: req.user.id, // Using their own ID to mark it hidden by user
       action: 'hide',
       reason: 'User deleted',
     });

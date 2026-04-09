@@ -111,20 +111,22 @@ export class PgDiscussionRepository implements DiscussionRepository {
   }
 
   private mapToAggregate(discussion: Discussion): DiscussionAggregate {
-    const commentsProps: CommentProps[] = discussion.comments.map((c) => ({
-      id: { value: c.id },
-      author: {
-        value: { userId: c.authorId },
-        nickname: 'User',
-        reputationSnapshot: 0,
-      },
-      body: c.body,
-      createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
-      parentId: c.parentId ? { value: c.parentId } : undefined,
-      editedByModerator: c.editedByModerator,
-      isHidden: c.isHidden,
-    }));
+    const commentsProps: CommentProps[] = (discussion.comments || []).map(
+      (c) => ({
+        id: { value: c.id },
+        author: {
+          value: { userId: c.authorId },
+          nickname: 'User',
+          reputationSnapshot: 0,
+        },
+        body: c.body,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+        parentId: c.parentId ? { value: c.parentId } : undefined,
+        editedByModerator: c.editedByModerator,
+        isHidden: c.isHidden,
+      }),
+    );
 
     return {
       id: { value: discussion.id },

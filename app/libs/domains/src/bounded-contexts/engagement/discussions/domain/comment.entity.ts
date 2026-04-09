@@ -12,22 +12,22 @@ import { Discussion } from './discussion.entity';
 @Entity('comments')
 export class Comment {
   @PrimaryColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  discussionId: string;
+  discussionId!: string;
 
   @ManyToOne(() => Discussion, (discussion) => discussion.comments, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'discussionId' })
-  discussion: Discussion;
+  discussion!: Discussion;
 
   @Column()
-  authorId: string;
+  authorId!: string;
 
   @Column('text')
-  body: string;
+  body!: string;
 
   @Column({ nullable: true })
   parentId?: string;
@@ -40,11 +40,11 @@ export class Comment {
   editedByModerator?: string;
 
   @Column({ default: false })
-  isHidden: boolean;
+  isHidden!: boolean;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

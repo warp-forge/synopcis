@@ -5,5 +5,5 @@ export class EditCommentDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  body: string;
+  body!: string;
 }

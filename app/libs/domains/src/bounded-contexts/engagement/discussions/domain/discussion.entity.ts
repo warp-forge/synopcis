@@ -11,23 +11,23 @@ import { Comment } from './comment.entity';
 @Entity('discussions')
 export class Discussion {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  blockId: string;
+  blockId!: string;
 
   @Column({ default: 0 })
-  totalParticipants: number;
+  totalParticipants!: number;
 
   @Column({ nullable: true })
   lastActivityAt?: Date;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @OneToMany(() => Comment, (comment) => comment.discussion)
-  comments: Comment[];
+  comments!: Comment[];
 }

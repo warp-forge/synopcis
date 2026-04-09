@@ -17,6 +17,7 @@ describe('DiscussionsController', () => {
   const mockRepository = {
     findByBlockId: jest.fn(),
     createForBlockId: jest.fn(),
+    findById: jest.fn(),
   };
 
   beforeEach(async () => {
