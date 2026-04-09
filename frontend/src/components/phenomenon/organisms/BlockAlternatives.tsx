@@ -16,14 +16,37 @@ export default function BlockAlternatives({ blockId, alternatives, winningAltern
   const [proposeOpened, { open: openPropose, close: closePropose }] = useDisclosure(false);
   const [newContent, setNewContent] = useState('');
 
-  const handleVote = (alternativeFile: string) => {
-    // API call to vote for an alternative
-    console.log(`Voted for ${alternativeFile} in block ${blockId}`);
+  const [currentAlternatives, setCurrentAlternatives] = useState<AlternativeWithContent[]>(alternatives);
+
+  const handleVote = async (alternativeFile: string) => {
+    // Simulated API call to vote for an alternative
+    setCurrentAlternatives(prev => prev.map(a => {
+      if (a.alternative.file === alternativeFile) {
+        return {
+          ...a,
+          alternative: {
+            ...a.alternative,
+            votes: a.alternative.votes + 1
+          }
+        };
+      }
+      return a;
+    }));
   };
 
-  const handlePropose = () => {
-    // API call to propose a new alternative
-    console.log(`Proposed new alternative for block ${blockId}: ${newContent}`);
+  const handlePropose = async () => {
+    // Simulated API call to propose a new alternative
+    const newAlternative: AlternativeWithContent = {
+      content: newContent,
+      alternative: {
+        file: `proposed-${Date.now()}.md`,
+        lang: 'en',
+        votes: 1,
+        source: null,
+        trust_score: 0,
+      }
+    };
+    setCurrentAlternatives(prev => [...prev, newAlternative]);
     closePropose();
     setNewContent('');
   };
@@ -31,13 +54,13 @@ export default function BlockAlternatives({ blockId, alternatives, winningAltern
   return (
     <div>
       <Button variant="subtle" size="xs" onClick={open}>
-        View Alternatives ({alternatives.length})
+        View Alternatives ({currentAlternatives.length})
       </Button>
 
       <Modal opened={opened} onClose={close} title={`Alternatives for Block ${blockId}`} size="lg">
         <Stack>
           <Button onClick={openPropose} variant="outline">Propose New Alternative</Button>
-          {alternatives.map(({ alternative, content }) => (
+          {currentAlternatives.map(({ alternative, content }) => (
             <AlternativeView
               key={alternative.file}
               alternative={alternative}
