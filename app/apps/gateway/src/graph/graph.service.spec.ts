@@ -33,7 +33,7 @@ describe('GraphService', () => {
     await expect(service.getGraphData('non-existent')).rejects.toThrow(NotFoundException);
   });
 
-  it('should return correct graph data for a manifest with concepts', async () => {
+  it('should return correct graph data with semantic proximity and mocked related articles', async () => {
     const mockManifest = {
       data: {
         title: 'Test Article',
@@ -55,16 +55,46 @@ describe('GraphService', () => {
 
     const result = await service.getGraphData('test-article');
 
-    expect(result.nodes).toHaveLength(4); // 1 article + 3 unique concepts
-    expect(result.links).toHaveLength(3);
+    // 1 article + 3 unique concepts + 3 mocked related articles = 7 nodes
+    expect(result.nodes).toHaveLength(7);
 
-    expect(result.nodes).toContainEqual({ id: 'test-article', label: 'Test Article', group: 'article' });
-    expect(result.nodes).toContainEqual({ id: 'concept-1', label: 'concept-1', group: 'concept' });
-    expect(result.nodes).toContainEqual({ id: 'concept-2', label: 'concept-2', group: 'concept' });
-    expect(result.nodes).toContainEqual({ id: 'concept-3', label: 'concept-3', group: 'concept' });
+    // 3 main article -> concept links + 3 mocked article -> concept links = 6 links
+    expect(result.links).toHaveLength(6);
 
-    expect(result.links).toContainEqual({ source: 'test-article', target: 'concept-1', value: 1 });
-    expect(result.links).toContainEqual({ source: 'test-article', target: 'concept-2', value: 1 });
-    expect(result.links).toContainEqual({ source: 'test-article', target: 'concept-3', value: 1 });
+    // Verify main article node
+    expect(result.nodes).toContainEqual({
+      id: 'test-article',
+      label: 'Test Article',
+      group: 'article',
+      semanticProximity: 1.0
+    });
+
+    // Total concept occurrences: 'concept-1' (1), 'concept-2' (2), 'concept-3' (1) = 4
+    expect(result.nodes).toContainEqual(expect.objectContaining({
+      id: 'concept-1',
+      group: 'concept',
+      semanticProximity: 0.25
+    }));
+
+    expect(result.nodes).toContainEqual(expect.objectContaining({
+      id: 'concept-2',
+      group: 'concept',
+      semanticProximity: 0.5
+    }));
+
+    // Verify mocked related article
+    expect(result.nodes).toContainEqual(expect.objectContaining({
+      id: 'related-concept-1',
+      group: 'article',
+      label: 'Related: concept-1',
+      semanticProximity: 0.25 * 0.8
+    }));
+
+    // Verify link from mocked related article to concept
+    expect(result.links).toContainEqual({
+      source: 'related-concept-1',
+      target: 'concept-1',
+      value: 0.5
+    });
   });
 });
