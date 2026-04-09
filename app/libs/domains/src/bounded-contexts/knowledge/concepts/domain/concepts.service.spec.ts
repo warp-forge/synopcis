@@ -29,9 +29,7 @@ describe('ConceptsDomainService', () => {
     conceptsRepository = module.get<Repository<Concept>>(
       getRepositoryToken(Concept),
     );
-    labelsRepository = module.get<Repository<Label>>(
-      getRepositoryToken(Label),
-    );
+    labelsRepository = module.get<Repository<Label>>(getRepositoryToken(Label));
   });
 
   it('should be defined', () => {

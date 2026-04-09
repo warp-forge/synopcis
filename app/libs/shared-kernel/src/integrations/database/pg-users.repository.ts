@@ -16,10 +16,11 @@ export class PgUsersRepository implements UsersRepository, OnModuleDestroy {
   }
 
   async findById(id: string): Promise<UserAccount | null> {
-    const result = await this.pool.query<{ id: string; display_name: string; email?: string | null }>(
-      'SELECT id, display_name, email FROM users WHERE id = $1 LIMIT 1',
-      [id],
-    );
+    const result = await this.pool.query<{
+      id: string;
+      display_name: string;
+      email?: string | null;
+    }>('SELECT id, display_name, email FROM users WHERE id = $1 LIMIT 1', [id]);
 
     if (result.rowCount === 0) {
       return null;

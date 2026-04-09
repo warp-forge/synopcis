@@ -6,9 +6,8 @@ import {
   EditCommentCommand,
   ModerateCommentCommand,
 } from './discussions.domain.entity';
-import type {
-  DiscussionRepository,
-} from './discussions.domain.entity';
+import type { DiscussionRepository } from './discussions.domain.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class DiscussionsDomainService {
@@ -18,19 +17,117 @@ export class DiscussionsDomainService {
   ) {}
 
   async addComment(command: AddCommentCommand): Promise<DiscussionAggregate> {
-    // TODO: implement add comment logic
-    throw new Error('DiscussionsDomainService.addComment not implemented');
+    const discussion = await this.repository.findById(
+      command.discussionId.value,
+    );
+    if (!discussion) {
+      throw new Error('Discussion not found');
+    }
+
+    const commentId = { value: uuidv4() };
+
+    const newComment = {
+      id: commentId,
+      author: {
+        value: { userId: command.authorId },
+        nickname: 'User', // In a real app, fetch from user service
+        reputationSnapshot: 0,
+      },
+      body: command.body,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      parentId: command.parentId,
+      isHidden: false,
+    };
+
+    const updatedDiscussion = {
+      ...discussion,
+      props: {
+        ...discussion.props,
+        comments: [...discussion.props.comments, newComment],
+        totalParticipants: discussion.props.totalParticipants + 1, // Simplified
+        lastActivityAt: new Date(),
+      },
+    };
+
+    await this.repository.save(updatedDiscussion);
+
+    return updatedDiscussion;
   }
 
   async editComment(command: EditCommentCommand): Promise<DiscussionAggregate> {
-    // TODO: implement edit comment logic
-    throw new Error('DiscussionsDomainService.editComment not implemented');
+    const discussion = await this.repository.findById(
+      command.discussionId.value,
+    );
+    if (!discussion) {
+      throw new Error('Discussion not found');
+    }
+
+    let found = false;
+    const updatedComments = discussion.props.comments.map((c) => {
+      if (
+        c.id.value === command.commentId.value &&
+        c.author.value.userId === command.editorId
+      ) {
+        found = true;
+        return { ...c, body: command.body, updatedAt: new Date() };
+      }
+      return c;
+    });
+
+    if (!found) {
+      throw new Error('Comment not found or unauthorized');
+    }
+
+    const updatedDiscussion = {
+      ...discussion,
+      props: {
+        ...discussion.props,
+        comments: updatedComments,
+      },
+    };
+
+    await this.repository.save(updatedDiscussion);
+    return updatedDiscussion;
   }
 
   async moderateComment(
     command: ModerateCommentCommand,
   ): Promise<DiscussionAggregate> {
-    // TODO: implement comment moderation logic
-    throw new Error('DiscussionsDomainService.moderateComment not implemented');
+    const discussion = await this.repository.findById(
+      command.discussionId.value,
+    );
+    if (!discussion) {
+      throw new Error('Discussion not found');
+    }
+
+    let found = false;
+    const updatedComments = discussion.props.comments.map((c) => {
+      if (c.id.value === command.commentId.value) {
+        found = true;
+        return {
+          ...c,
+          isHidden: command.action === 'hide',
+          editedByModerator: command.moderatorId,
+          updatedAt: new Date(),
+        };
+      }
+      return c;
+    });
+
+    if (!found) {
+      throw new Error('Comment not found');
+    }
+
+    const updatedDiscussion = {
+      ...discussion,
+      props: {
+        ...discussion.props,
+        comments: updatedComments,
+      },
+    };
+
+    await this.repository.save(updatedDiscussion);
+    return updatedDiscussion;
   }
 }
