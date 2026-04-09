@@ -18,7 +18,9 @@ export type ConceptId = Identifier;
 
 export type ConceptKind = 'category' | 'property' | 'value' | 'entity' | 'tag';
 
-export interface ConceptSynonym extends ValueObject<{ readonly key: string }>, LocalizedText {
+export interface ConceptSynonym
+  extends ValueObject<{ readonly key: string }>,
+    LocalizedText {
   readonly relevance: number;
 }
 
@@ -57,7 +59,8 @@ export interface ConceptProps {
   readonly metadata?: Record<string, unknown>;
 }
 
-export interface ConceptAggregate extends AggregateRoot<ConceptId, ConceptProps, ConceptEvent> {
+export interface ConceptAggregate
+  extends AggregateRoot<ConceptId, ConceptProps, ConceptEvent> {
   readonly props: ConceptProps;
 }
 
@@ -67,7 +70,8 @@ export type ConceptEvent =
   | ConceptMergedEvent
   | ConceptVectorUpdatedEvent;
 
-export interface ConceptCreatedEvent extends DomainEvent<{ readonly key: string }> {
+export interface ConceptCreatedEvent
+  extends DomainEvent<{ readonly key: string }> {
   readonly payload: {
     readonly key: string;
     readonly kind: ConceptKind;
@@ -79,7 +83,10 @@ export interface ConceptUpdatedEvent
   extends DomainEvent<{ readonly changes: Partial<ConceptProps> }> {}
 
 export interface ConceptMergedEvent
-  extends DomainEvent<{ readonly sourceId: ConceptId; readonly targetId: ConceptId }> {}
+  extends DomainEvent<{
+    readonly sourceId: ConceptId;
+    readonly targetId: ConceptId;
+  }> {}
 
 export interface ConceptVectorUpdatedEvent
   extends DomainEvent<{ readonly vector: VectorEmbedding }> {}
@@ -135,7 +142,7 @@ export interface UpdateConceptVectorCommand {
   readonly performedBy: UUID;
 }
 
-export type ConceptUseCase<
-  TCommand extends Command,
-  TResult,
-> = UseCase<TCommand, TResult>;
+export type ConceptUseCase<TCommand extends Command, TResult> = UseCase<
+  TCommand,
+  TResult
+>;
