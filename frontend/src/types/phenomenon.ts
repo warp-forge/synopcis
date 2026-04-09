@@ -14,6 +14,11 @@ export interface Alternative {
   trust_score: number;
 }
 
+export interface AlternativeWithContent {
+  alternative: Alternative;
+  content: string;
+}
+
 export interface BlockData {
   type: 'heading' | 'text' | 'quote' | 'image' | 'property-card';
   alternatives: Alternative[];
@@ -56,6 +61,8 @@ export interface RenderableBlock {
   content: string; // The fetched markdown content
   source: Source | null;
   alternativesCount: number;
+  alternatives?: AlternativeWithContent[];
+  winningAlternativeFile?: string;
 }
 
 export interface RenderablePhenomenon {

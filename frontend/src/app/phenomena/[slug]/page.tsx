@@ -4,6 +4,7 @@ import {
   RenderablePhenomenon,
   Manifest,
   RenderableBlock,
+  AlternativeWithContent,
 } from '@/types/phenomenon';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -63,6 +64,20 @@ async function getPhenomenon(
         );
         const content = await fs.readFile(contentPath, 'utf-8');
 
+        // Fetch all alternatives content
+        const alternativesWithContentPromises = blockData.alternatives
+          .filter((alt) => alt.lang === manifest.default_lang)
+          .map(async (alt) => {
+            const altContentPath = path.join(publicDir, slug, alt.file);
+            const altContent = await fs.readFile(altContentPath, 'utf-8');
+            return {
+              alternative: alt,
+              content: altContent,
+            };
+          });
+
+        const alternativesWithContent = await Promise.all(alternativesWithContentPromises);
+
         const renderableBlock: RenderableBlock = {
           id: structureNode.block_id,
           type: blockData.type,
@@ -70,6 +85,8 @@ async function getPhenomenon(
           content,
           source: winningAlternative.source,
           alternativesCount: blockData.alternatives.length,
+          alternatives: alternativesWithContent,
+          winningAlternativeFile: winningAlternative.file,
         };
         return renderableBlock;
       },
@@ -103,7 +120,9 @@ async function getPhenomenon(
 export default async function PhenomenonPage({
   params,
 }: PhenomenonPageProps) {
-  const phenomenon = await getPhenomenon(params.slug);
+  const p = await params;
+  const slug = p.slug;
+  const phenomenon = await getPhenomenon(slug);
 
   if (!phenomenon) {
     return <div>Phenomenon not found.</div>;
