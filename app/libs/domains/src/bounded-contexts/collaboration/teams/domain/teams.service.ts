@@ -2,11 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   TEAM_REPOSITORY,
   TeamAggregate,
-  TeamRepository,
   ChangeTeamRoleCommand,
   CreateTeamCommand,
   InviteTeamMemberCommand,
   RemoveTeamMemberCommand,
+} from './teams.domain.entity';
+import type {
+  TeamRepository,
 } from './teams.domain.entity';
 
 @Injectable()

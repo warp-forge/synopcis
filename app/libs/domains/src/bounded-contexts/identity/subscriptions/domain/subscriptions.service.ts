@@ -2,10 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   SUBSCRIPTION_REPOSITORY,
   SubscriptionAggregate,
-  SubscriptionRepository,
   CancelSubscriptionCommand,
   CreateSubscriptionCommand,
   ToggleSubscriptionMuteCommand,
+} from './subscriptions.domain.entity';
+import type {
+  SubscriptionRepository,
 } from './subscriptions.domain.entity';
 
 @Injectable()

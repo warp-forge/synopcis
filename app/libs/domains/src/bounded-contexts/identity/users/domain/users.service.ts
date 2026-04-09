@@ -7,6 +7,8 @@ import {
   UpdateUserProfileCommand,
   ApplyUserRestrictionCommand,
   UserAggregate,
+} from './users.domain.entity';
+import type {
   UserRepository,
 } from './users.domain.entity';
 

@@ -77,4 +77,5 @@ export interface EvaluateAchievementsCommand {
 
 export interface CreateAchievementDefinitionCommand extends AchievementDefinitionProps {}
 
-export type AchievementUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+import { Command } from '../../../../core';
+export type AchievementUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

@@ -2,10 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   DUEL_REPOSITORY,
   DuelAggregate,
-  DuelRepository,
   StartDuelCommand,
   RegisterDuelVoteCommand,
   CancelDuelCommand,
+} from './duels.domain.entity';
+import type {
+  DuelRepository,
 } from './duels.domain.entity';
 
 @Injectable()

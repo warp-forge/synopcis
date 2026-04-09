@@ -6,6 +6,7 @@ import {
   RepositoryPort,
   UUID,
   UseCase,
+  Command,
 } from '../../../../core';
 
 export type TeamId = Identifier;
@@ -76,4 +77,4 @@ export interface ChangeTeamRoleCommand {
   readonly changedBy: UUID;
 }
 
-export type TeamUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+export type TeamUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

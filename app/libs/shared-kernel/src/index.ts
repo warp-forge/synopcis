@@ -2,7 +2,6 @@ export * from './events';
 export * from './utils';
 export * from './queue/task-queue.service';
 export * from './rendering/markdown.renderer';
-export * from './integrations/git/git-repository.client';
 export * from './integrations/storage/object-storage.client';
 export * from './integrations/database/database-config';
 export * from './integrations/database/users.repository';

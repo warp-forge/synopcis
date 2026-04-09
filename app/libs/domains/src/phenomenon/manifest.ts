@@ -62,7 +62,7 @@ export class Manifest {
     };
 
     this.data.blocks[blockId] = catalogEntry;
-    this.data.last_updated = new Date().toISOString();
+    (this.data as any).last_updated = new Date().toISOString();
 
     changes[filePath] = block.content;
 

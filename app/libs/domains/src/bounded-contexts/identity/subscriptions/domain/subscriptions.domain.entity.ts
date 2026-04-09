@@ -5,6 +5,7 @@ import {
   RepositoryPort,
   UUID,
   UseCase,
+  Command,
 } from '../../../../core';
 
 export type SubscriptionId = Identifier;
@@ -57,4 +58,4 @@ export interface ToggleSubscriptionMuteCommand {
   readonly performedBy: UUID;
 }
 
-export type SubscriptionUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+export type SubscriptionUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

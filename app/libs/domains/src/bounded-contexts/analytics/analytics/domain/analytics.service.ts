@@ -3,10 +3,12 @@ import {
   ANALYTICS_METRICS,
   ANALYTICS_PORT,
   AnalyticsDataset,
-  AnalyticsMetrics,
-  AnalyticsPort,
   AnalyticsQuery,
   DashboardWidget,
+} from './analytics.domain.entity';
+import type {
+  AnalyticsMetrics,
+  AnalyticsPort,
 } from './analytics.domain.entity';
 
 @Injectable()

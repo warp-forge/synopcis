@@ -5,11 +5,13 @@ import {
   REPUTATION_ANALYTICS_PORT,
   REPUTATION_LEDGER_REPOSITORY,
   REPUTATION_METRICS,
-  ReputationAnalyticsPort,
   ReputationEvent,
+  ReputationTrendPoint,
+} from './reputation.domain.entity';
+import type {
+  ReputationAnalyticsPort,
   ReputationLedgerRepository,
   ReputationMetrics,
-  ReputationTrendPoint,
 } from './reputation.domain.entity';
 
 @Injectable()

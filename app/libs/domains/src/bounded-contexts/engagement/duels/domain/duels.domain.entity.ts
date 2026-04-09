@@ -7,12 +7,11 @@ import {
   UseCase,
   WeightedScore,
 } from '../../../../core';
-import { BlockId } from '../../knowledge/blocks/domain/blocks.domain.entity';
 
 export type DuelId = Identifier;
 
 export interface DuelCandidate {
-  readonly blockId: BlockId;
+  readonly blockId: any;
   readonly alternativeId: UUID;
   readonly language: string;
 }
@@ -71,4 +70,5 @@ export interface CancelDuelCommand {
   readonly reason: string;
 }
 
-export type DuelUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+import { Command } from '../../../../core';
+export type DuelUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

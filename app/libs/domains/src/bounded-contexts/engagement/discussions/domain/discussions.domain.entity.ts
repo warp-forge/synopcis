@@ -8,7 +8,6 @@ import {
   UseCase,
   ValueObject,
 } from '../../../../core';
-import { BlockId } from '../../knowledge/blocks/domain/blocks.domain.entity';
 
 export type DiscussionId = Identifier;
 export type CommentId = Identifier;
@@ -29,7 +28,7 @@ export interface CommentProps {
 }
 
 export interface DiscussionProps {
-  readonly blockId: BlockId;
+  readonly blockId: any;
   readonly comments: readonly CommentProps[];
   readonly totalParticipants: number;
   readonly lastActivityAt?: Date;
@@ -57,7 +56,7 @@ export interface CommentRestoredEvent
 
 export interface DiscussionRepository
   extends RepositoryPort<DiscussionAggregate, DiscussionId> {
-  findByBlockId(blockId: BlockId): Promise<DiscussionAggregate | null>;
+  findByBlockId(blockId: any): Promise<DiscussionAggregate | null>;
   listActive(pagination: { readonly limit: number }): Promise<PaginatedResult<DiscussionAggregate>>;
 }
 
@@ -85,4 +84,5 @@ export interface ModerateCommentCommand {
   readonly reason?: string;
 }
 
-export type DiscussionUseCase<TCommand, TResult> = UseCase<TCommand, TResult>;
+import { Command } from '../../../../core';
+export type DiscussionUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

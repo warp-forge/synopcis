@@ -47,7 +47,7 @@ export class TaskQueueService implements OnModuleDestroy {
     >;
   }
 
-  consume<TPayload>(
+  consume<TPayload extends Record<string, unknown>>(
     type: TaskType,
     handler: TaskHandler<TPayload>,
     options?: ConsumeOptions,
@@ -66,7 +66,7 @@ export class TaskQueueService implements OnModuleDestroy {
 
               if (result.status === 'failed') {
                 const error = new Error(result.detail ?? 'Task failed');
-                this.emitError(task, error);
+                this.emitError(task as any, error);
                 return;
               }
 
@@ -77,7 +77,7 @@ export class TaskQueueService implements OnModuleDestroy {
               );
             }),
             catchError((error) => {
-              this.emitError(task, this.normalizeError(error));
+              this.emitError(task as any, this.normalizeError(error));
               return EMPTY;
             }),
           ),

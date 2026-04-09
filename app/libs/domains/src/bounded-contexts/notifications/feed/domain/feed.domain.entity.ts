@@ -6,11 +6,9 @@ import {
   RepositoryPort,
   UUID,
   UseCase,
+  Identifier,
 } from '../../../../core';
-import { ArticleId } from '../../knowledge/articles/domain/articles.domain.entity';
-import { BlockId } from '../../knowledge/blocks/domain/blocks.domain.entity';
-
-export type FeedEventId = string;
+export type FeedEventId = Identifier;
 
 export type FeedEventType =
   | 'article.published'
@@ -20,8 +18,8 @@ export type FeedEventType =
   | 'user.achievement.unlocked';
 
 export interface FeedEventPayload {
-  readonly articleId?: ArticleId;
-  readonly blockId?: BlockId;
+  readonly articleId?: any;
+  readonly blockId?: any;
   readonly actorId?: UUID;
   readonly metadata?: Record<string, unknown>;
 }
@@ -39,7 +37,7 @@ export interface FeedTimelineEntry {
 }
 
 export interface FeedTimelineRepository
-  extends RepositoryPort<FeedTimelineEntry, FeedEventId> {
+  extends RepositoryPort<any, FeedEventId> {
   loadTimeline(recipientId: UUID, query: Query): Promise<PaginatedResult<FeedTimelineEntry>>;
 }
 

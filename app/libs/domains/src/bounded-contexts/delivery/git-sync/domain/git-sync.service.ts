@@ -4,10 +4,12 @@ import {
   GIT_MIRROR_REPOSITORY,
   GitMirrorAggregate,
   GitMirrorEvent,
-  GitMirrorHistoryPort,
-  GitMirrorRepository,
   RecordGitMirrorResultCommand,
   ScheduleGitMirrorCommand,
+} from './git-sync.domain.entity';
+import type {
+  GitMirrorHistoryPort,
+  GitMirrorRepository,
 } from './git-sync.domain.entity';
 
 @Injectable()

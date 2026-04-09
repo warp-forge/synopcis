@@ -45,8 +45,8 @@ export interface GitMirrorRepository
 export const GIT_MIRROR_REPOSITORY = Symbol('GIT_MIRROR_REPOSITORY');
 
 export interface GitMirrorUseCases {
-  readonly scheduleMirror: UseCase<ScheduleGitMirrorCommand, GitMirrorAggregate>;
-  readonly recordMirror: UseCase<RecordGitMirrorResultCommand, GitMirrorEvent>;
+  readonly scheduleMirror: UseCase<any, GitMirrorAggregate>;
+  readonly recordMirror: UseCase<any, GitMirrorEvent>;
 }
 
 export interface GitMirrorHistoryPort {

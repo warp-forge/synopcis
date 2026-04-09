@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateAiAnalysisTaskDto } from './dto/create-ai-analysis.dto';
-import { CreateRenderTaskDto } from './dto/create-render-task.dto';
-import { CreateIngestionTaskDto } from './dto/create-ingestion-task.dto';
-import { CreateAiDraftTaskDto } from './dto/create-ai-draft-task.dto';
+import { CreateAiAnalysisTaskDto } from '../dto/create-ai-analysis.dto';
+import { CreateRenderTaskDto } from '../dto/create-render-task.dto';
+import { CreateIngestionTaskDto } from '../dto/create-ingestion-task.dto';
+import { CreateAiDraftTaskDto } from '../dto/create-ai-draft-task.dto';
 import { TaskType, createTaskMessage } from '@synop/shared-kernel';
-import { ScheduleAiSuggestionsDto } from './dto/schedule-ai-suggestions.dto';
+import { ScheduleAiSuggestionsDto } from '../dto/schedule-ai-suggestions.dto';
 
 @Injectable()
 export class GatewayService {

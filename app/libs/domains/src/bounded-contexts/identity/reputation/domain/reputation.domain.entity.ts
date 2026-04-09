@@ -71,8 +71,8 @@ export interface ReputationAnalyticsPort extends TimeSeriesPort<ReputationTrendP
 export const REPUTATION_ANALYTICS_PORT = Symbol('REPUTATION_ANALYTICS_PORT');
 
 export interface ReputationUseCases {
-  readonly adjustReputation: UseCase<AdjustReputationCommand, ReputationEvent>;
-  readonly getTrend: UseCase<GetReputationTrendQuery, readonly ReputationTrendPoint[]>;
+  readonly adjustReputation: UseCase<any, ReputationEvent>;
+  readonly getTrend: UseCase<any, readonly ReputationTrendPoint[]>;
 }
 
 export interface ReputationMetrics {
