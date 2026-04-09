@@ -10,7 +10,9 @@ import {
 } from './users.domain.entity';
 import type {
   UserRepository,
+  UserId,
 } from './users.domain.entity';
+import { UserAggregateImpl } from './user.aggregate';
 
 @Injectable()
 export class UsersDomainService {
@@ -48,5 +50,20 @@ export class UsersDomainService {
   ): Promise<UserAggregate> {
     // TODO: implement restriction removal logic
     throw new Error('UsersDomainService.liftRestriction not implemented');
+  }
+
+  async syncReputation(userId: string, delta: number): Promise<void> {
+    const userIdentifier = { value: userId, brand: 'UserId' as const } as unknown as UserId;
+    const user = await this.repository.findById(userIdentifier);
+    if (user) {
+        let aggregateImpl: UserAggregateImpl;
+        if (user instanceof UserAggregateImpl) {
+           aggregateImpl = user;
+        } else {
+           aggregateImpl = new UserAggregateImpl(user.id, user.props, user.createdAt, user.updatedAt, user.version);
+        }
+        aggregateImpl.updateReputation(delta);
+        await this.repository.save(aggregateImpl);
+    }
   }
 }

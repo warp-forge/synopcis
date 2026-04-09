@@ -5,6 +5,7 @@ import { GatewayService } from './gateway.service';
 import { SharedKernelModule } from '@synop/shared-kernel';
 import { AchievementsModule, PhenomenonModule } from '@synop/domains';
 import { AuthModule } from '../auth/auth.module';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { AuthModule } from '../auth/auth.module';
     AchievementsModule,
     PhenomenonModule,
     AuthModule,
+    ProfileModule,
     ClientsModule.register([
       {
         name: 'NATS_SERVICE',

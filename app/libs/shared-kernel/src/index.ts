@@ -6,5 +6,6 @@ export * from './integrations/storage/object-storage.client';
 export * from './integrations/database/database-config';
 export * from './integrations/database/users.repository';
 export * from './integrations/database/pg-users.repository';
+export * from './integrations/git/git-repository.client';
 export * from './shared-kernel.module';
 export * from './shared-kernel.service';
