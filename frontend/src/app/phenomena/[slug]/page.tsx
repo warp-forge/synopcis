@@ -21,16 +21,25 @@ type PhenomenonPageProps = {
   params: { slug: string };
 };
 
-async function getPhenomenon(
-  slug: string,
-): Promise<RenderablePhenomenon | null> {
+async function getManifest(slug: string): Promise<Manifest | null> {
   try {
     const publicDir = getPublicDirPath();
     const manifestPath = path.join(publicDir, slug, 'manifest.json');
-
-    // 1. Read the manifest file from the filesystem
     const manifestContent = await fs.readFile(manifestPath, 'utf-8');
-    const manifest: Manifest = JSON.parse(manifestContent);
+    return JSON.parse(manifestContent);
+  } catch (error) {
+    console.error(`Error reading manifest for slug "${slug}":`, error);
+    return null;
+  }
+}
+
+async function getPhenomenon(
+  slug: string,
+  manifest: Manifest | null,
+): Promise<RenderablePhenomenon | null> {
+  if (!manifest) return null;
+  try {
+    const publicDir = getPublicDirPath();
 
     // 2. Process the structure to build the list of renderable blocks
     const renderableBlocksPromises = manifest.structure.map(
@@ -94,7 +103,6 @@ async function getPhenomenon(
 
     return phenomenon;
   } catch (error) {
-    // If the manifest file doesn't exist or there's a parsing error, treat as a 404
     console.error(`Error building page for slug "${slug}":`, error);
     return null;
   }
@@ -103,9 +111,10 @@ async function getPhenomenon(
 export default async function PhenomenonPage({
   params,
 }: PhenomenonPageProps) {
-  const phenomenon = await getPhenomenon(params.slug);
+  const manifest = await getManifest(params.slug);
+  const phenomenon = await getPhenomenon(params.slug, manifest);
 
-  if (!phenomenon) {
+  if (!phenomenon || !manifest) {
     return <div>Phenomenon not found.</div>;
   }
 
@@ -119,7 +128,7 @@ export default async function PhenomenonPage({
         {phenomenon.cardData && (
           <PhenomenonCard properties={phenomenon.cardData.properties} />
         )}
-        <PhenomenonView phenomenon={phenomenon} />
+        <PhenomenonView phenomenon={phenomenon} manifest={manifest} />
       </Container>
     </Layout>
   );
