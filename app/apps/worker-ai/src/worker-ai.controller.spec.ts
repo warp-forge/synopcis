@@ -17,6 +17,18 @@ describe('WorkerAiController', () => {
               processed: 0,
             })),
             recentAnalyses: jest.fn(() => []),
+            getQueueStatus: jest.fn(() => ({
+              waiting: 0,
+              active: 0,
+              completed: 0,
+              failed: 0,
+            })),
+          },
+        },
+        {
+          provide: 'BullQueue_ai-tasks',
+          useValue: {
+            add: jest.fn(),
           },
         },
       ],

@@ -2,15 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { MarkdownRenderer, TaskMessage } from '@synop/shared-kernel';
 import { randomUUID } from 'crypto';
 
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+
 type AnalysisPayload = {
   articleSlug: string;
   sourceUrl: string;
 };
 
-type AnalysisRecord = {
+export type AiTaskRecord = {
   id: string;
-  articleSlug: string;
-  renderedSummary: string;
+  type: string;
+  status: string;
+  result?: any;
+  error?: string;
   completedAt: Date;
 };
 
@@ -21,48 +26,38 @@ type SuggestionsPayload = {
 
 @Injectable()
 export class WorkerAiService {
-  private readonly processed: AnalysisRecord[] = [];
+  private readonly processed: AiTaskRecord[] = [];
 
-  constructor(private readonly renderer: MarkdownRenderer) {}
+  constructor(
+    private readonly renderer: MarkdownRenderer,
+    @InjectQueue('ai-tasks') private aiQueue: Queue,
+  ) {}
 
-  analyzeSource(task: TaskMessage<AnalysisPayload>) {
-    const payload = task.payload;
-    const renderedSummary = this.renderer.render(
-      `# AI analysis for ${payload.articleSlug}\n\nSource: ${payload.sourceUrl}`,
-    );
-
-    this.processed.push({
-      id: task.id,
-      articleSlug: payload.articleSlug,
-      renderedSummary,
-      completedAt: new Date(),
-    });
-
-    return {
-      taskId: task.id,
-      type: task.type,
-      status: 'completed',
-      detail: `analysis prepared for ${payload.articleSlug}`,
-    };
+  saveTaskResult(record: AiTaskRecord) {
+    this.processed.push(record);
   }
 
-  getAiSuggestions(task: TaskMessage<SuggestionsPayload>) {
-    const payload = task.payload;
-    const phenomena = ['apple', 'banana', 'orange'];
-    const suggestions = phenomena
-      .filter((phenomenon) => payload.text.includes(phenomenon))
-      .map((phenomenon) => ({
-        text: phenomenon,
-        phenomenonSlug: phenomenon,
-      }));
+  async getQueueStatus() {
+    const [waiting, active, completed, failed] = await Promise.all([
+      this.aiQueue.getWaitingCount(),
+      this.aiQueue.getActiveCount(),
+      this.aiQueue.getCompletedCount(),
+      this.aiQueue.getFailedCount(),
+    ]);
 
-    return {
-      taskId: task.id,
-      type: task.type,
-      status: 'completed',
-      detail: `suggestions prepared for ${payload.phenomenonSlug}`,
-      payload: suggestions,
-    };
+    return { waiting, active, completed, failed };
+  }
+
+  async retryJob(jobId: string) {
+    const job = await this.aiQueue.getJob(jobId);
+    if (!job) {
+      throw new Error('Job not found');
+    }
+    if (await job.isFailed()) {
+      await job.retry();
+      return true;
+    }
+    return false;
   }
 
   status() {
@@ -72,7 +67,23 @@ export class WorkerAiService {
     };
   }
 
-  recentAnalyses(limit = 5): AnalysisRecord[] {
+  recentAnalyses(limit = 5): AiTaskRecord[] {
     return this.processed.slice(-limit).reverse();
+  }
+
+  runAnalyzeSource(payload: AnalysisPayload) {
+    return this.renderer.render(
+      `# AI analysis for ${payload.articleSlug}\n\nSource: ${payload.sourceUrl}`,
+    );
+  }
+
+  runGetSuggestions(payload: SuggestionsPayload) {
+    const phenomena = ['apple', 'banana', 'orange'];
+    return phenomena
+      .filter((phenomenon) => payload.text.includes(phenomenon))
+      .map((phenomenon) => ({
+        text: phenomenon,
+        phenomenonSlug: phenomenon,
+      }));
   }
 }
