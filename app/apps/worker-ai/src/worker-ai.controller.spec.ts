@@ -26,10 +26,28 @@ describe('WorkerAiController', () => {
           },
         },
         {
-          provide: 'BullQueue_ai-tasks',
-          useValue: {
-            add: jest.fn(),
-          },
+          provide: 'BullQueue_ai-embedding',
+          useValue: { add: jest.fn() },
+        },
+        {
+          provide: 'BullQueue_ai-ner',
+          useValue: { add: jest.fn() },
+        },
+        {
+          provide: 'BullQueue_ai-verify-source',
+          useValue: { add: jest.fn() },
+        },
+        {
+          provide: 'BullQueue_ai-translation',
+          useValue: { add: jest.fn() },
+        },
+        {
+          provide: 'BullQueue_ai-analysis',
+          useValue: { add: jest.fn() },
+        },
+        {
+          provide: 'BullQueue_ai-suggestions',
+          useValue: { add: jest.fn() },
         },
       ],
     }).compile();
