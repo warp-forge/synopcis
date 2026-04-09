@@ -34,7 +34,8 @@ export default function BlockHistoryModal({ opened, onClose, file }: BlockHistor
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/git/history?file=${encodeURIComponent(file)}`);
+      // Call the actual backend API once implemented
+      const res = await fetch(`http://localhost:3000/api/git/history?file=${encodeURIComponent(file)}`);
       if (!res.ok) {
         throw new Error('Failed to fetch history');
       }
@@ -71,8 +72,9 @@ export default function BlockHistoryModal({ opened, onClose, file }: BlockHistor
       const commit1 = selectedCommits[1];
       const commit2 = selectedCommits[0];
 
+      // Call the actual backend API once implemented
       const res = await fetch(
-        `/api/git/diff?file=${encodeURIComponent(file)}&commit1=${commit1}&commit2=${commit2}`
+        `http://localhost:3000/api/git/diff?file=${encodeURIComponent(file)}&commit1=${commit1}&commit2=${commit2}`
       );
       if (!res.ok) {
         throw new Error('Failed to fetch diff');

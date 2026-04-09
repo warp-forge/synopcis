@@ -57,7 +57,7 @@ describe('BlockHistoryModal', () => {
       expect(screen.getByText('By Bob')).toBeInTheDocument();
     });
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/git/history?file=test-file');
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:3000/api/git/history?file=test-file');
   });
 
   it('allows comparing two commits', async () => {
@@ -99,7 +99,7 @@ describe('BlockHistoryModal', () => {
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
     expect(global.fetch).toHaveBeenLastCalledWith(
-      '/api/git/diff?file=test-file&commit1=commit2&commit2=commit1'
+      'http://localhost:3000/api/git/diff?file=test-file&commit1=commit2&commit2=commit1'
     );
   });
 });
