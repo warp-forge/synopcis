@@ -3,12 +3,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PhenomenonEntity } from './phenomenon.entity';
 import { PhenomenonDomainService } from './phenomenon.domain.service';
 import { PhenomenonBlockEntity } from './phenomenon-block.entity';
+import { PhenomenonAlternativeEntity } from './phenomenon-alternative.entity';
+import { PhenomenonVoteEntity } from './phenomenon-vote.entity';
 import { PhenomenonStorageService } from './phenomenon-storage.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PhenomenonEntity, PhenomenonBlockEntity]),
+    TypeOrmModule.forFeature([
+      PhenomenonEntity,
+      PhenomenonBlockEntity,
+      PhenomenonAlternativeEntity,
+      PhenomenonVoteEntity,
+    ]),
     ClientsModule.register([
       {
         name: 'NATS_SERVICE',
