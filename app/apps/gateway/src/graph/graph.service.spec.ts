@@ -33,7 +33,7 @@ describe('GraphService', () => {
     await expect(service.getGraphData('non-existent')).rejects.toThrow(NotFoundException);
   });
 
-  it('should return correct graph data with semantic proximity and mocked related articles', async () => {
+  it('should return correct graph data with semantic proximity for concepts', async () => {
     const mockManifest = {
       data: {
         title: 'Test Article',
@@ -55,11 +55,11 @@ describe('GraphService', () => {
 
     const result = await service.getGraphData('test-article');
 
-    // 1 article + 3 unique concepts + 3 mocked related articles = 7 nodes
-    expect(result.nodes).toHaveLength(7);
+    // 1 article + 3 unique concepts = 4 nodes
+    expect(result.nodes).toHaveLength(4);
 
-    // 3 main article -> concept links + 3 mocked article -> concept links = 6 links
-    expect(result.links).toHaveLength(6);
+    // 3 main article -> concept links = 3 links
+    expect(result.links).toHaveLength(3);
 
     // Verify main article node
     expect(result.nodes).toContainEqual({
@@ -81,20 +81,5 @@ describe('GraphService', () => {
       group: 'concept',
       semanticProximity: 0.5
     }));
-
-    // Verify mocked related article
-    expect(result.nodes).toContainEqual(expect.objectContaining({
-      id: 'related-concept-1',
-      group: 'article',
-      label: 'Related: concept-1',
-      semanticProximity: 0.25 * 0.8
-    }));
-
-    // Verify link from mocked related article to concept
-    expect(result.links).toContainEqual({
-      source: 'related-concept-1',
-      target: 'concept-1',
-      value: 0.5
-    });
   });
 });

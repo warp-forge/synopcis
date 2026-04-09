@@ -63,16 +63,6 @@ export class GraphService {
         semanticProximity: proximity
       });
       links.push({ source: articleSlug, target: concept, value: 1 });
-
-      // Mock related articles to fulfill payload shape requirement for UI coloring/grouping
-      const mockArticleId = `related-${concept}`;
-      nodes.push({
-        id: mockArticleId,
-        label: `Related: ${concept}`,
-        group: 'article',
-        semanticProximity: proximity * 0.8 // slightly less proximate
-      });
-      links.push({ source: mockArticleId, target: concept, value: 0.5 });
     }
 
     return { nodes, links };
