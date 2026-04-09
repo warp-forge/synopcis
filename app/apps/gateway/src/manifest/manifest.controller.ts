@@ -1,7 +1,8 @@
-import { Body, Controller, Param, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Param, Put, Req, UsePipes, ValidationPipe, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { PhenomenonStorageService } from '@synop/domains';
 import { UpdateManifestDto } from '../dto/update-manifest.dto';
 import { Request } from 'express';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('api/manifests')
 @UsePipes(
@@ -15,6 +16,7 @@ export class ManifestController {
     private readonly phenomenonStorageService: PhenomenonStorageService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Put(':phenomenon_id')
   async updateManifest(
     @Param('phenomenon_id') phenomenonId: string,
@@ -22,7 +24,10 @@ export class ManifestController {
     @Req() request: Request,
   ) {
     const user = request.user as { id: string; email: string };
-    const author = user ? { name: user.email, email: user.email } : { name: 'Anonymous', email: 'anonymous@synop.one' };
+    if (!user) {
+      throw new UnauthorizedException('Authentication required');
+    }
+    const author = { name: user.email, email: user.email };
 
     return this.phenomenonStorageService.updateFullManifest(phenomenonId, dto, author);
   }

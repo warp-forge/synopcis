@@ -3,7 +3,8 @@ import { ManifestController } from './manifest.controller';
 import { PhenomenonStorageService } from '@synop/domains';
 import { Request } from 'express';
 import { UpdateManifestDto } from '../dto/update-manifest.dto';
-import { ValidationPipe } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 describe('ManifestController', () => {
   let controller: ManifestController;
@@ -22,7 +23,10 @@ describe('ManifestController', () => {
           useValue: mockPhenomenonStorageService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<ManifestController>(ManifestController);
   });
@@ -32,7 +36,7 @@ describe('ManifestController', () => {
   });
 
   describe('updateManifest', () => {
-    it('should call phenomenonStorageService.updateFullManifest with anonymous author if no user', async () => {
+    it('should throw UnauthorizedException if no user', async () => {
       const dto: UpdateManifestDto = {
         article_slug: 'test',
         title: 'Test',
@@ -46,16 +50,10 @@ describe('ManifestController', () => {
         user: undefined,
       } as unknown as Request;
 
-      mockPhenomenonStorageService.updateFullManifest.mockResolvedValueOnce({ success: true } as any);
-
-      const result = await controller.updateManifest('test-id', dto, req);
-
-      expect(mockPhenomenonStorageService.updateFullManifest).toHaveBeenCalledWith(
-        'test-id',
-        dto,
-        { name: 'Anonymous', email: 'anonymous@synop.one' },
+      await expect(controller.updateManifest('test-id', dto, req)).rejects.toThrow(
+        UnauthorizedException,
       );
-      expect(result).toEqual({ success: true });
+      expect(mockPhenomenonStorageService.updateFullManifest).not.toHaveBeenCalled();
     });
 
     it('should call phenomenonStorageService.updateFullManifest with user author if user exists', async () => {

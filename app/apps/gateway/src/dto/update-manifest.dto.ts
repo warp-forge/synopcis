@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsString, IsArray, ValidateNested, IsObject, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsArray, ValidateNested, IsObject, IsOptional, IsNumber, Validate } from 'class-validator';
+import { IsManifestBlocksRecord } from './is-record.validator';
 
 export class BlockSourceDto {
   @IsString()
@@ -98,6 +99,7 @@ export class UpdateManifestDto {
   structure: StructureEntryDto[];
 
   @IsObject()
+  @Validate(IsManifestBlocksRecord)
   @ApiProperty()
-  blocks: Record<string, any>;
+  blocks: Record<string, BlockCatalogEntryDto>;
 }
