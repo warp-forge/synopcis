@@ -1,27 +1,7 @@
-1. **Update `worker-ai.service.ts` to manage task state:**
-   - Introduce `TaskState` to track status (`pending`, `processing`, `completed`, `failed`, `cancelled`), attempts, and errors.
-   - Implement a wrapper method `processTaskWithRetry` that runs tasks, catches errors, retries up to 3 times, logs errors, and sets the task state.
-   - Implement a mock notification system `notifyCriticalFailure` that logs a critical error when a task reaches its maximum retries.
-   - Implement methods to cancel (`cancelTask`), restart (`restartTask`), and get analytics (`getAnalytics`) for tasks.
-   - Update `analyzeSource` and `getAiSuggestions` to use this wrapper.
-
-2. **Update `worker-ai.controller.ts` with new API endpoints:**
-   - `POST /tasks/:id/restart`
-   - `POST /tasks/:id/cancel`
-   - `GET /tasks/analytics`
-   - `GET /tasks`
-
-3. **Add and update tests in `worker-ai.controller.spec.ts`:**
-   - Verify task API endpoints (`cancel`, `restart`, `analytics`) behave as expected.
-   - Ensure the controller successfully mocks the service.
-
-4. **Add and update tests in `worker-ai.service.spec.ts` (if missing, create it):**
-   - Test task retries.
-   - Test that critical errors log notifications.
-   - Test task cancellation and restarting logic.
-
-5. **Complete pre-commit steps:**
-   - Ensure proper testing, verification, review, and reflection are done.
-
-6. **Submit:**
-   - Push code and create PR.
+1. **Rework cancellation and introduce `AbortController` (or similar token):**
+   - Update `runWithRetry` to accept a cancellation token and check it before proceeding.
+   - If cancelled during execution, prevent it from overriding the cancelled state.
+2. **Implement Task History Persistence:**
+   - Modify the `tasks` storage. Currently it's a Map. The reviewer expects persistence "so they survive restarts and satisfy the storage requirement".
+   - Since creating full TypeORM entities in `worker-ai` might over-complicate and break the "minimal" constraint unless expected, I will implement a simpler filesystem-based JSON persistence mechanism or check if a Redis/DB service is directly available to inject without altering `domains` too much.
+   - *Wait*, let's check `shared-kernel` or the `package.json` to see if a simple local file persistence is what they meant, or if a TypeORM entity in the app is required.
