@@ -4,7 +4,6 @@ import {
   RenderablePhenomenon,
   Manifest,
   RenderableBlock,
-  AlternativeWithContent,
 } from '@/types/phenomenon';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -22,16 +21,25 @@ type PhenomenonPageProps = {
   params: { slug: string };
 };
 
-async function getPhenomenon(
-  slug: string,
-): Promise<RenderablePhenomenon | null> {
+async function getManifest(slug: string): Promise<Manifest | null> {
   try {
     const publicDir = getPublicDirPath();
     const manifestPath = path.join(publicDir, slug, 'manifest.json');
-
-    // 1. Read the manifest file from the filesystem
     const manifestContent = await fs.readFile(manifestPath, 'utf-8');
-    const manifest: Manifest = JSON.parse(manifestContent);
+    return JSON.parse(manifestContent);
+  } catch (error) {
+    console.error(`Error reading manifest for slug "${slug}":`, error);
+    return null;
+  }
+}
+
+async function getPhenomenon(
+  slug: string,
+  manifest: Manifest | null,
+): Promise<RenderablePhenomenon | null> {
+  if (!manifest) return null;
+  try {
+    const publicDir = getPublicDirPath();
 
     // 2. Process the structure to build the list of renderable blocks
     const renderableBlocksPromises = manifest.structure.map(
@@ -64,20 +72,6 @@ async function getPhenomenon(
         );
         const content = await fs.readFile(contentPath, 'utf-8');
 
-        // Fetch all alternatives content
-        const alternativesWithContentPromises = blockData.alternatives
-          .filter((alt) => alt.lang === manifest.default_lang)
-          .map(async (alt) => {
-            const altContentPath = path.join(publicDir, slug, alt.file);
-            const altContent = await fs.readFile(altContentPath, 'utf-8');
-            return {
-              alternative: alt,
-              content: altContent,
-            };
-          });
-
-        const alternativesWithContent = await Promise.all(alternativesWithContentPromises);
-
         const renderableBlock: RenderableBlock = {
           id: structureNode.block_id,
           type: blockData.type,
@@ -85,8 +79,6 @@ async function getPhenomenon(
           content,
           source: winningAlternative.source,
           alternativesCount: blockData.alternatives.length,
-          alternatives: alternativesWithContent,
-          winningAlternativeFile: winningAlternative.file,
         };
         return renderableBlock;
       },
@@ -111,7 +103,6 @@ async function getPhenomenon(
 
     return phenomenon;
   } catch (error) {
-    // If the manifest file doesn't exist or there's a parsing error, treat as a 404
     console.error(`Error building page for slug "${slug}":`, error);
     return null;
   }
@@ -120,11 +111,10 @@ async function getPhenomenon(
 export default async function PhenomenonPage({
   params,
 }: PhenomenonPageProps) {
-  const p = await params;
-  const slug = p.slug;
-  const phenomenon = await getPhenomenon(slug);
+  const manifest = await getManifest(params.slug);
+  const phenomenon = await getPhenomenon(params.slug, manifest);
 
-  if (!phenomenon) {
+  if (!phenomenon || !manifest) {
     return <div>Phenomenon not found.</div>;
   }
 
@@ -138,7 +128,7 @@ export default async function PhenomenonPage({
         {phenomenon.cardData && (
           <PhenomenonCard properties={phenomenon.cardData.properties} />
         )}
-        <PhenomenonView phenomenon={phenomenon} />
+        <PhenomenonView phenomenon={phenomenon} manifest={manifest} />
       </Container>
     </Layout>
   );
