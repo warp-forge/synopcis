@@ -95,6 +95,37 @@ export class PhenomenonStorageService {
     return phenomenon;
   }
 
+  async updateFullManifest(
+    phenomenonSlug: string,
+    manifestDto: any,
+    author: GitAuthor,
+  ) {
+    const existingManifest = await this.loadManifest(phenomenonSlug);
+    if (!existingManifest) {
+      throw new Error(`Manifest for phenomenon "${phenomenonSlug}" not found.`);
+    }
+
+    const changes: Record<string, string> = {
+      [MANIFEST_FILE_PATH]: JSON.stringify(manifestDto, null, 2),
+    };
+
+    return lastValueFrom(
+      this.natsClient.send(
+        TaskType.GIT_COMMIT,
+        createTaskMessage({
+          type: TaskType.GIT_COMMIT,
+          payload: {
+            repository: phenomenonSlug,
+            author,
+            summary: `Update manifest for ${phenomenonSlug}`,
+            sourceUrl: 'synop://api/manifests/update',
+            changes,
+          },
+        }),
+      ),
+    );
+  }
+
   async updatePhenomenonBlocks(input: UpdatePhenomenonBlocksInput) {
     const manifest = await this.loadManifest(input.phenomenonSlug);
     if (!manifest) {
