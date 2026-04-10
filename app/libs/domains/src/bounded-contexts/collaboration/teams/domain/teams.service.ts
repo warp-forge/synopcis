@@ -7,9 +7,7 @@ import {
   InviteTeamMemberCommand,
   RemoveTeamMemberCommand,
 } from './teams.domain.entity';
-import type {
-  TeamRepository,
-} from './teams.domain.entity';
+import type { TeamRepository } from './teams.domain.entity';
 
 @Injectable()
 export class TeamsDomainService {

@@ -19,7 +19,8 @@ export interface CollectionProps {
   readonly articles: readonly CollectionArticle[];
 }
 
-export interface CollectionArticle extends ValueObject<{ readonly articleId: any }> {
+export interface CollectionArticle
+  extends ValueObject<{ readonly articleId: any }> {
   readonly addedAt: Date;
   readonly addedBy: UUID;
   readonly order: number;
@@ -35,7 +36,8 @@ export type CollectionEvent =
   | CollectionArticleRemovedEvent
   | CollectionVisibilityChangedEvent;
 
-export interface CollectionCreatedEvent extends DomainEvent<{ readonly title: string }> {}
+export interface CollectionCreatedEvent
+  extends DomainEvent<{ readonly title: string }> {}
 
 export interface CollectionArticleAddedEvent
   extends DomainEvent<{ readonly articleId: any; readonly order: number }> {}
@@ -82,4 +84,7 @@ export interface ChangeCollectionVisibilityCommand {
 }
 
 import { Command } from '../../../../core';
-export type CollectionUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;
+export type CollectionUseCase<
+  TCommand extends Command<unknown>,
+  TResult,
+> = UseCase<TCommand, TResult>;

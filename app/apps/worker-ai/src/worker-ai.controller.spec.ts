@@ -17,37 +17,7 @@ describe('WorkerAiController', () => {
               processed: 0,
             })),
             recentAnalyses: jest.fn(() => []),
-            getQueueStatus: jest.fn(() => ({
-              waiting: 0,
-              active: 0,
-              completed: 0,
-              failed: 0,
-            })),
           },
-        },
-        {
-          provide: 'BullQueue_ai-embedding',
-          useValue: { add: jest.fn() },
-        },
-        {
-          provide: 'BullQueue_ai-ner',
-          useValue: { add: jest.fn() },
-        },
-        {
-          provide: 'BullQueue_ai-verify-source',
-          useValue: { add: jest.fn() },
-        },
-        {
-          provide: 'BullQueue_ai-translation',
-          useValue: { add: jest.fn() },
-        },
-        {
-          provide: 'BullQueue_ai-analysis',
-          useValue: { add: jest.fn() },
-        },
-        {
-          provide: 'BullQueue_ai-suggestions',
-          useValue: { add: jest.fn() },
         },
       ],
     }).compile();

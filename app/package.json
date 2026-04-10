@@ -27,7 +27,6 @@
     "generate:mocks": "ts-node -r tsconfig-paths/register generate-mocks.ts"
   },
   "dependencies": {
-    "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
@@ -40,11 +39,9 @@
     "@stoplight/prism-cli": "^5.14.2",
     "axios": "^1.13.1",
     "bcrypt": "^6.0.0",
-    "bullmq": "^5.73.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "handlebars": "^4.7.8",
-    "ioredis": "^5.10.1",
     "nats": "^2.29.3",
     "node-fetch": "^2.7.0",
     "passport": "^0.7.0",
