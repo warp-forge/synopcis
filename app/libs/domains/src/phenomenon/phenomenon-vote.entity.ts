@@ -6,7 +6,10 @@ export class PhenomenonVoteEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => PhenomenonAlternativeEntity, (alternative) => alternative.votes)
+  @ManyToOne(
+    () => PhenomenonAlternativeEntity,
+    (alternative) => alternative.votes,
+  )
   alternative: PhenomenonAlternativeEntity;
 
   @Column()

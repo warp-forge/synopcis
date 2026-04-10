@@ -6,6 +6,7 @@ import { PhenomenonEntity } from './phenomenon.entity';
 import { PhenomenonBlockEntity } from './phenomenon-block.entity';
 import { PhenomenonAlternativeEntity } from './phenomenon-alternative.entity';
 import { PhenomenonVoteEntity } from './phenomenon-vote.entity';
+import { ReputationDomainService } from '../bounded-contexts/identity/reputation/domain/reputation.service';
 
 export interface CreatePhenomenonInput {
   title: string;
@@ -23,7 +24,6 @@ export interface AddAlternativeInput {
 export interface VoteInput {
   alternativeId: string;
   userId: string;
-  weight: number;
 }
 
 @Injectable()
@@ -37,6 +37,7 @@ export class PhenomenonDomainService {
     private readonly alternativeRepository: Repository<PhenomenonAlternativeEntity>,
     @InjectRepository(PhenomenonVoteEntity)
     private readonly voteRepository: Repository<PhenomenonVoteEntity>,
+    private readonly reputationDomainService: ReputationDomainService,
   ) {}
 
   async createPhenomenon(
@@ -58,8 +59,13 @@ export class PhenomenonDomainService {
     return this.phenomenonRepository.findOneBy({ slug });
   }
 
-  async addAlternative(input: AddAlternativeInput): Promise<PhenomenonAlternativeEntity> {
-    const block = await this.blockRepository.findOne({ where: { id: input.blockId }, relations: ['alternatives'] });
+  async addAlternative(
+    input: AddAlternativeInput,
+  ): Promise<PhenomenonAlternativeEntity> {
+    const block = await this.blockRepository.findOne({
+      where: { id: input.blockId },
+      relations: ['alternatives'],
+    });
     if (!block) {
       throw new Error(`Block with id ${input.blockId} not found`);
     }
@@ -89,18 +95,27 @@ export class PhenomenonDomainService {
       throw new Error(`Alternative with id ${input.alternativeId} not found`);
     }
 
+    let userWeight = 1;
+    try {
+      userWeight = await this.reputationDomainService.getUserReputationScore(
+        input.userId,
+      );
+    } catch {
+      // fallback to weight 1 if reputation lookup fails
+    }
+
     let vote = await this.voteRepository.findOne({
       where: { alternative: { id: input.alternativeId }, userId: input.userId },
     });
 
     if (vote) {
-      vote.weight = input.weight;
+      vote.weight = userWeight;
     } else {
       vote = this.voteRepository.create({
         id: uuidv4(),
         alternative,
         userId: input.userId,
-        weight: input.weight,
+        weight: userWeight,
       });
     }
 

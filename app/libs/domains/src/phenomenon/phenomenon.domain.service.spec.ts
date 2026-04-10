@@ -5,6 +5,7 @@ import { PhenomenonEntity } from './phenomenon.entity';
 import { PhenomenonBlockEntity } from './phenomenon-block.entity';
 import { PhenomenonAlternativeEntity } from './phenomenon-alternative.entity';
 import { PhenomenonVoteEntity } from './phenomenon-vote.entity';
+import { ReputationDomainService } from '../bounded-contexts/identity/reputation/domain/reputation.service';
 
 describe('PhenomenonDomainService Voting', () => {
   let service: PhenomenonDomainService;
@@ -56,6 +57,12 @@ describe('PhenomenonDomainService Voting', () => {
           provide: getRepositoryToken(PhenomenonVoteEntity),
           useValue: mockVoteRepo,
         },
+        {
+          provide: ReputationDomainService,
+          useValue: {
+            getUserReputationScore: jest.fn().mockResolvedValue(10),
+          },
+        },
       ],
     }).compile();
 
@@ -69,7 +76,10 @@ describe('PhenomenonDomainService Voting', () => {
   describe('addAlternative', () => {
     it('should create an alternative and set it as active if it is the first one', async () => {
       const blockId = 'block-1';
-      mockBlockRepo.findOne.mockResolvedValue({ id: blockId, alternatives: [] });
+      mockBlockRepo.findOne.mockResolvedValue({
+        id: blockId,
+        alternatives: [],
+      });
       mockAlternativeRepo.create.mockReturnValue({
         id: 'alt-1',
         block: { id: blockId },
@@ -94,7 +104,10 @@ describe('PhenomenonDomainService Voting', () => {
 
     it('should create an alternative and set it as inactive if it is not the first one', async () => {
       const blockId = 'block-1';
-      mockBlockRepo.findOne.mockResolvedValue({ id: blockId, alternatives: [{ id: 'alt-1' }] });
+      mockBlockRepo.findOne.mockResolvedValue({
+        id: blockId,
+        alternatives: [{ id: 'alt-1' }],
+      });
       mockAlternativeRepo.create.mockReturnValue({
         id: 'alt-2',
         block: { id: blockId },
@@ -145,24 +158,28 @@ describe('PhenomenonDomainService Voting', () => {
       const alternative = { id: alternativeId, block: { id: blockId } };
       mockAlternativeRepo.findOne.mockResolvedValue(alternative);
       mockVoteRepo.findOne.mockResolvedValue(null);
-      mockVoteRepo.create.mockReturnValue({ id: 'vote-1', alternative, userId: 'user-1', weight: 5 });
+      mockVoteRepo.create.mockReturnValue({
+        id: 'vote-1',
+        alternative,
+        userId: 'user-1',
+        weight: 10,
+      });
 
       // Mock recalculateActiveAlternative internals
       mockBlockRepo.findOne.mockResolvedValue({
         id: blockId,
         alternatives: [
-            { id: 'alt-1', isActive: true, votes: [{ weight: 1 }] },
-            { id: 'alt-2', isActive: false, votes: [{ weight: 5 }] }
+          { id: 'alt-1', isActive: true, votes: [{ weight: 1 }] },
+          { id: 'alt-2', isActive: false, votes: [{ weight: 5 }] },
         ],
       });
 
       const vote = await service.voteForAlternative({
         alternativeId,
         userId: 'user-1',
-        weight: 5,
       });
 
-      expect(vote.weight).toBe(5);
+      expect(vote.weight).toBe(10);
       expect(mockVoteRepo.save).toHaveBeenCalledWith(vote);
       expect(mockBlockRepo.findOne).toHaveBeenCalledWith({
         where: { id: blockId },

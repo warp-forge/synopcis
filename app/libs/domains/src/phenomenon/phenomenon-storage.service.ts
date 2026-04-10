@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  TaskType,
-  createTaskMessage,
-} from '@synop/shared-kernel';
+import { TaskType, createTaskMessage } from '@synop/shared-kernel';
 import { lastValueFrom } from 'rxjs';
 
 export interface GitAuthor {

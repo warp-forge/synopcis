@@ -7,9 +7,11 @@ import { PhenomenonAlternativeEntity } from './phenomenon-alternative.entity';
 import { PhenomenonVoteEntity } from './phenomenon-vote.entity';
 import { PhenomenonStorageService } from './phenomenon-storage.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ReputationDomainModule } from '../bounded-contexts/identity/reputation/reputation.module';
 
 @Module({
   imports: [
+    ReputationDomainModule,
     TypeOrmModule.forFeature([
       PhenomenonEntity,
       PhenomenonBlockEntity,

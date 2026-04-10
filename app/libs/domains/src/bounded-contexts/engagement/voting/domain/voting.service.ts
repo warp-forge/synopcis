@@ -5,9 +5,7 @@ import {
   CastVoteCommand,
   RetractVoteCommand,
 } from './voting.domain.entity';
-import type {
-  VoteRepository,
-} from './voting.domain.entity';
+import type { VoteRepository } from './voting.domain.entity';
 
 @Injectable()
 export class VotingDomainService {

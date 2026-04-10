@@ -90,12 +90,12 @@ describe('PhenomenonStorageService', () => {
         TaskType.GIT_COMMIT,
         expect.any(Object),
       );
-      expect(
-        mockPhenomenonDomainService.createPhenomenon,
-      ).toHaveBeenCalledWith({
-        title: phenomenonSlug,
-        userId: 'test-user',
-      });
+      expect(mockPhenomenonDomainService.createPhenomenon).toHaveBeenCalledWith(
+        {
+          title: phenomenonSlug,
+          userId: 'test-user',
+        },
+      );
     });
   });
 
