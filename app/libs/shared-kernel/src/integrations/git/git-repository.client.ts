@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Injectable } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import { tmpdir } from 'os';

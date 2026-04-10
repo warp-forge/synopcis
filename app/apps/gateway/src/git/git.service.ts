@@ -5,8 +5,8 @@ import { LocalGitRepositoryClient } from '@synop/shared-kernel';
 export class GitService {
   constructor(private readonly gitRepositoryClient: LocalGitRepositoryClient) {}
 
-  async getHistory(repository: string, file: string) {
-    return this.gitRepositoryClient.history(repository, { file, limit: 50 });
+  async getHistory(repository: string, file: string, limit: number) {
+    return this.gitRepositoryClient.history(repository, { file, limit });
   }
 
   async getDiff(
@@ -21,6 +21,12 @@ export class GitService {
       commit2,
       file,
     );
-    return { diff };
+    return {
+      repository,
+      file,
+      commit1,
+      commit2,
+      diff,
+    };
   }
 }
