@@ -1,9 +1,4 @@
-import {
-  Query,
-  SearchPort,
-  UseCase,
-  VectorEmbedding,
-} from '../../../../core';
+import { Query, SearchPort, UseCase, VectorEmbedding } from '../../../../core';
 
 export interface SearchResult<T> {
   readonly item: T;
@@ -35,8 +30,14 @@ export interface SearchConceptsQuery extends Query {
 }
 
 export interface SearchUseCases {
-  readonly searchArticles: UseCase<SearchArticlesQuery, readonly SearchResult<any>[]>;
-  readonly searchConcepts: UseCase<SearchConceptsQuery, readonly SearchResult<any>[]>;
+  readonly searchArticles: UseCase<
+    SearchArticlesQuery,
+    readonly SearchResult<any>[]
+  >;
+  readonly searchConcepts: UseCase<
+    SearchConceptsQuery,
+    readonly SearchResult<any>[]
+  >;
 }
 
 //TODO Provide concrete search adapters for Postgres full-text and vector indices.

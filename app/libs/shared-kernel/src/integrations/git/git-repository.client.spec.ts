@@ -115,7 +115,10 @@ describe('LocalGitRepositoryClient', () => {
     });
 
     const baseContent = await client.readFile(repository, primaryPath);
-    const alternativeContent = await client.readFile(repository, alternativePath);
+    const alternativeContent = await client.readFile(
+      repository,
+      alternativePath,
+    );
 
     expect(baseContent).toContain('# Biography');
     expect(alternativeContent).toContain('# Biography (Academic)');
@@ -160,17 +163,126 @@ describe('LocalGitRepositoryClient', () => {
     });
     expect(history[0].files).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ path: formatBlockFilePath({
-          lang: 'ru',
-          blockId: 1,
-          label: 'Введение',
-        }) }),
+        expect.objectContaining({
+          path: formatBlockFilePath({
+            lang: 'ru',
+            blockId: 1,
+            label: 'Введение',
+          }),
+        }),
       ]),
     );
 
     const diff = await client.diff(repository, secondCommit.hash);
     expect(diff).toContain('b001-');
     expect(diff).toContain('# Биография');
+  });
+
+  it('filters history by file', async () => {
+    await client.commitArticle({
+      repository,
+      summary: 'Add block 1',
+      sourceUrl: 'https://example.com/source',
+      author: { name: 'Test' },
+      blocks: [
+        {
+          lang: 'en',
+          blockId: 1,
+          label: 'Block One',
+          content: 'Content 1',
+        },
+      ],
+    });
+
+    await client.commitArticle({
+      repository,
+      summary: 'Add block 2',
+      sourceUrl: 'https://example.com/source',
+      author: { name: 'Test' },
+      blocks: [
+        {
+          lang: 'en',
+          blockId: 2,
+          label: 'Block Two',
+          content: 'Content 2',
+        },
+      ],
+    });
+
+    const block1Path = formatBlockFilePath({
+      lang: 'en',
+      blockId: 1,
+      label: 'Block One',
+    });
+
+    const block2Path = formatBlockFilePath({
+      lang: 'en',
+      blockId: 2,
+      label: 'Block Two',
+    });
+
+    const allHistory = await client.history(repository);
+    expect(allHistory).toHaveLength(2);
+
+    const block1History = await client.history(repository, {
+      file: block1Path,
+    });
+    expect(block1History).toHaveLength(1);
+    expect(block1History[0].summary).toBe('Add block 1');
+
+    const block2History = await client.history(repository, {
+      file: block2Path,
+    });
+    expect(block2History).toHaveLength(1);
+    expect(block2History[0].summary).toBe('Add block 2');
+  });
+
+  it('returns diff between two specific commits for a file', async () => {
+    const commit1 = await client.commitArticle({
+      repository,
+      summary: 'Version 1',
+      sourceUrl: 'https://example.com/source',
+      author: { name: 'Test' },
+      blocks: [
+        {
+          lang: 'en',
+          blockId: 1,
+          label: 'Test Block',
+          content: 'Version 1 content\n',
+        },
+      ],
+    });
+
+    const commit2 = await client.commitArticle({
+      repository,
+      summary: 'Version 2',
+      sourceUrl: 'https://example.com/source',
+      author: { name: 'Test' },
+      blocks: [
+        {
+          lang: 'en',
+          blockId: 1,
+          label: 'Test Block',
+          content: 'Version 2 content\n',
+        },
+      ],
+    });
+
+    const filePath = formatBlockFilePath({
+      lang: 'en',
+      blockId: 1,
+      label: 'Test Block',
+    });
+
+    const diff = await client.diffCommits(
+      repository,
+      commit1.hash,
+      commit2.hash,
+      filePath,
+    );
+
+    expect(diff).toContain('-Version 1 content');
+    expect(diff).toContain('+Version 2 content');
   });
 
   it('allows cloning repositories into working directories', async () => {

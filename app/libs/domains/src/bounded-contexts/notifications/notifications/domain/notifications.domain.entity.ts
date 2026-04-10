@@ -13,7 +13,8 @@ export type NotificationId = Identifier;
 
 export type NotificationChannel = 'in-app' | 'email' | 'push';
 
-export interface NotificationTemplate extends ValueObject<{ readonly code: string }> {
+export interface NotificationTemplate
+  extends ValueObject<{ readonly code: string }> {
   readonly title: string;
   readonly body: string;
   readonly channel: NotificationChannel;
@@ -38,11 +39,16 @@ export type NotificationEvent =
   | NotificationReadEvent;
 
 export interface NotificationScheduledEvent
-  extends DomainEvent<{ readonly recipientId: UUID; readonly templateCode: string }> {}
+  extends DomainEvent<{
+    readonly recipientId: UUID;
+    readonly templateCode: string;
+  }> {}
 
-export interface NotificationDeliveredEvent extends DomainEvent<{ readonly channel: NotificationChannel }> {}
+export interface NotificationDeliveredEvent
+  extends DomainEvent<{ readonly channel: NotificationChannel }> {}
 
-export interface NotificationReadEvent extends DomainEvent<{ readonly readAt: Date }> {}
+export interface NotificationReadEvent
+  extends DomainEvent<{ readonly readAt: Date }> {}
 
 export interface NotificationRepository
   extends RepositoryPort<NotificationAggregate, NotificationId> {
@@ -63,7 +69,7 @@ export interface MarkNotificationReadCommand {
   readonly recipientId: UUID;
 }
 
-export type NotificationUseCase<
-  TCommand extends Command,
-  TResult,
-> = UseCase<TCommand, TResult>;
+export type NotificationUseCase<TCommand extends Command, TResult> = UseCase<
+  TCommand,
+  TResult
+>;

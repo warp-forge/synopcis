@@ -44,8 +44,7 @@ export interface ArticleBlockDescriptor {
   readonly label: string;
 }
 
-export interface ArticleCommitInput
-  extends Omit<GitCommitInput, 'changes'> {
+export interface ArticleCommitInput extends Omit<GitCommitInput, 'changes'> {
   readonly blocks: (ArticleBlockDescriptor & { content: string })[];
 }
 
@@ -61,6 +60,7 @@ export interface GitCommitRecord {
 
 export interface GitHistoryOptions {
   readonly limit?: number;
+  readonly file?: string;
 }
 
 export function slugifyBlockLabel(label: string): string {
@@ -74,7 +74,9 @@ export function slugifyBlockLabel(label: string): string {
   return normalized.length > 0 ? normalized : 'untitled';
 }
 
-export function formatBlockFilePath(descriptor: ArticleBlockDescriptor): string {
+export function formatBlockFilePath(
+  descriptor: ArticleBlockDescriptor,
+): string {
   const paddedId = descriptor.blockId.toString().padStart(3, '0');
   return path.posix.join(
     descriptor.lang,
@@ -112,7 +114,10 @@ export class LocalGitRepositoryClient {
     }
   }
 
-  async cloneRepository(repository: string, destination: string): Promise<void> {
+  async cloneRepository(
+    repository: string,
+    destination: string,
+  ): Promise<void> {
     const repoPath = await this.initializeRepository(repository);
     const absoluteDestination = path.resolve(destination);
     await fs.mkdir(path.dirname(absoluteDestination), { recursive: true });
@@ -205,13 +210,40 @@ export class LocalGitRepositoryClient {
     limitOrOptions: number | GitHistoryOptions = 10,
   ): Promise<GitCommitRecord[]> {
     await this.initializeRepository(repository);
-    const limit =
-      typeof limitOrOptions === 'number'
-        ? limitOrOptions
-        : limitOrOptions.limit ?? 10;
 
-    const log = await this.gitForBare(repository).log({ maxCount: limit });
+    let limit = 10;
+    let file: string | undefined;
+
+    if (typeof limitOrOptions === 'number') {
+      limit = limitOrOptions;
+    } else {
+      limit = limitOrOptions.limit ?? 10;
+      file = limitOrOptions.file;
+    }
+
+    const options: Record<string, string | number> = { maxCount: limit };
+    if (file) {
+      options.file = file;
+    }
+
+    const log = await this.gitForBare(repository).log(options);
     return log.all.map((entry) => this.parseCommitEntry(entry));
+  }
+
+  async diffCommits(
+    repository: string,
+    commit1: string,
+    commit2: string,
+    file: string,
+  ): Promise<string> {
+    await this.initializeRepository(repository);
+    return this.gitForBare(repository).raw([
+      'diff',
+      commit1,
+      commit2,
+      '--',
+      file,
+    ]);
   }
 
   async diff(repository: string, hash: string): Promise<string> {
@@ -263,7 +295,13 @@ export class LocalGitRepositoryClient {
 
     const remoteBranches = await git.branch(['-r']);
     if (remoteBranches.all.includes(`origin/${this.branch}`)) {
-      await git.raw(['checkout', '-b', this.branch, '--track', `origin/${this.branch}`]);
+      await git.raw([
+        'checkout',
+        '-b',
+        this.branch,
+        '--track',
+        `origin/${this.branch}`,
+      ]);
     } else {
       await git.checkoutLocalBranch(this.branch);
     }
@@ -318,9 +356,14 @@ export class LocalGitRepositoryClient {
     return `${header}\n\n${footer}`;
   }
 
-  private parseCommitEntry(entry: DefaultLogFields & ListLogLine): GitCommitRecord {
+  private parseCommitEntry(
+    entry: DefaultLogFields & ListLogLine,
+  ): GitCommitRecord {
     const summaryInfo = this.parseSummary(entry.message);
-    const metadata = this.parseMetadata(entry.body ?? '', summaryInfo.repository);
+    const metadata = this.parseMetadata(
+      entry.body ?? '',
+      summaryInfo.repository,
+    );
 
     return {
       repository: summaryInfo.repository,
@@ -374,9 +417,10 @@ export class LocalGitRepositoryClient {
     try {
       const parsed = JSON.parse(metadataLine.slice('Metadata:'.length).trim());
       return {
-        repository: typeof parsed.repository === 'string'
-          ? parsed.repository
-          : fallbackRepository,
+        repository:
+          typeof parsed.repository === 'string'
+            ? parsed.repository
+            : fallbackRepository,
         sourceUrl: typeof parsed.sourceUrl === 'string' ? parsed.sourceUrl : '',
         files: Array.isArray(parsed.files)
           ? parsed.files

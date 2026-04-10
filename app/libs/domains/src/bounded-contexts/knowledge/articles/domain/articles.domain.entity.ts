@@ -49,22 +49,35 @@ export type ArticleEvent =
   | ArticleConceptLinkedEvent;
 
 export interface ArticleCreatedEvent
-  extends DomainEvent<{ readonly slug: string; readonly status: ArticleStatus }> {}
+  extends DomainEvent<{
+    readonly slug: string;
+    readonly status: ArticleStatus;
+  }> {}
 
 export interface ArticleMetadataUpdatedEvent
   extends DomainEvent<{ readonly metadata: ArticleMetadata }> {}
 
-export interface ArticleStatusChangedEvent extends DomainEvent<{ readonly status: ArticleStatus }> {}
+export interface ArticleStatusChangedEvent
+  extends DomainEvent<{ readonly status: ArticleStatus }> {}
 
-export interface ArticleFrozenEvent extends DomainEvent<{ readonly frozenUntil: Date }> {}
+export interface ArticleFrozenEvent
+  extends DomainEvent<{ readonly frozenUntil: Date }> {}
 
 export interface ArticleConceptLinkedEvent
-  extends DomainEvent<{ readonly conceptId: ConceptId; readonly relation: 'primary' | 'secondary' }> {}
+  extends DomainEvent<{
+    readonly conceptId: ConceptId;
+    readonly relation: 'primary' | 'secondary';
+  }> {}
 
-export interface ArticleRepository extends RepositoryPort<ArticleAggregate, ArticleId> {
+export interface ArticleRepository
+  extends RepositoryPort<ArticleAggregate, ArticleId> {
   findBySlug(slug: string): Promise<ArticleAggregate | null>;
-  listByConcept(conceptId: ConceptId): Promise<PaginatedResult<ArticleAggregate>>;
-  listRecentlyPublished(limit: number): Promise<PaginatedResult<ArticleAggregate>>;
+  listByConcept(
+    conceptId: ConceptId,
+  ): Promise<PaginatedResult<ArticleAggregate>>;
+  listRecentlyPublished(
+    limit: number,
+  ): Promise<PaginatedResult<ArticleAggregate>>;
 }
 
 export const ARTICLE_REPOSITORY = Symbol('ARTICLE_REPOSITORY');
@@ -106,4 +119,7 @@ export interface LinkArticleConceptCommand {
   readonly performedBy: UUID;
 }
 
-export type ArticleUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;
+export type ArticleUseCase<
+  TCommand extends Command<unknown>,
+  TResult,
+> = UseCase<TCommand, TResult>;

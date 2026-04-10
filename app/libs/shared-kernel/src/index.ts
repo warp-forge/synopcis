@@ -8,3 +8,5 @@ export * from './integrations/database/users.repository';
 export * from './integrations/database/pg-users.repository';
 export * from './shared-kernel.module';
 export * from './shared-kernel.service';
+
+export * from './integrations/git/git-repository.client';
