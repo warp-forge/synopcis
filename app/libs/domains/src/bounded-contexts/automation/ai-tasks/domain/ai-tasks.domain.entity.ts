@@ -18,12 +18,7 @@ export type AiTaskType =
   | 'embedding-generation'
   | 'summarization';
 
-export type AiTaskStatus =
-  | 'pending'
-  | 'processing'
-  | 'completed'
-  | 'failed'
-  | 'cancelled';
+export type AiTaskStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
 
 export interface AiTaskPayload extends ValueObject<Record<string, unknown>> {
   readonly priority: 'low' | 'normal' | 'high';
@@ -48,8 +43,7 @@ export interface AiTaskProps {
   readonly attempts: number;
 }
 
-export interface AiTaskAggregate
-  extends AggregateRoot<AiTaskId, AiTaskProps, AiTaskEvent> {}
+export interface AiTaskAggregate extends AggregateRoot<AiTaskId, AiTaskProps, AiTaskEvent> {}
 
 export type AiTaskEvent =
   | AiTaskCreatedEvent
@@ -58,29 +52,19 @@ export type AiTaskEvent =
   | AiTaskFailedEvent
   | AiTaskCancelledEvent;
 
-export interface AiTaskCreatedEvent
-  extends DomainEvent<{
-    readonly type: AiTaskType;
-    readonly payload: AiTaskPayload;
-  }> {}
+export interface AiTaskCreatedEvent extends DomainEvent<{ readonly type: AiTaskType; readonly payload: AiTaskPayload }> {}
 
 export interface AiTaskAssignedEvent
   extends DomainEvent<{ readonly workerId: UUID; readonly startedAt: Date }> {}
 
-export interface AiTaskCompletedEvent
-  extends DomainEvent<{ readonly result: AiTaskResult }> {}
+export interface AiTaskCompletedEvent extends DomainEvent<{ readonly result: AiTaskResult }> {}
 
-export interface AiTaskFailedEvent
-  extends DomainEvent<{ readonly error: string; readonly attempts: number }> {}
+export interface AiTaskFailedEvent extends DomainEvent<{ readonly error: string; readonly attempts: number }> {}
 
-export interface AiTaskCancelledEvent
-  extends DomainEvent<{ readonly cancelledBy: UUID }> {}
+export interface AiTaskCancelledEvent extends DomainEvent<{ readonly cancelledBy: UUID }> {}
 
-export interface AiTaskRepository
-  extends RepositoryPort<AiTaskAggregate, AiTaskId> {
-  findNextPending(
-    types: readonly AiTaskType[],
-  ): Promise<AiTaskAggregate | null>;
+export interface AiTaskRepository extends RepositoryPort<AiTaskAggregate, AiTaskId> {
+  findNextPending(types: readonly AiTaskType[]): Promise<AiTaskAggregate | null>;
   listStalled(since: Date): Promise<readonly AiTaskAggregate[]>;
 }
 
@@ -109,7 +93,4 @@ export interface CancelAiTaskCommand {
   readonly cancelledBy: UUID;
 }
 
-export type AiTaskUseCase<TCommand extends Command<unknown>, TResult> = UseCase<
-  TCommand,
-  TResult
->;
+export type AiTaskUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

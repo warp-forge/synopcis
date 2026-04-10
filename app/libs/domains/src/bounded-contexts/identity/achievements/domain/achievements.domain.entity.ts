@@ -20,8 +20,7 @@ export interface AchievementDefinitionProps {
   readonly isSecret: boolean;
 }
 
-export interface AchievementCriterion
-  extends ValueObject<{ readonly type: AchievementCriterionType }> {
+export interface AchievementCriterion extends ValueObject<{ readonly type: AchievementCriterionType }> {
   readonly threshold: number;
   readonly windowDays?: number;
 }
@@ -34,30 +33,20 @@ export type AchievementCriterionType =
   | 'duels.won';
 
 export interface AchievementDefinitionAggregate
-  extends AggregateRoot<
-    AchievementId,
-    AchievementDefinitionProps,
-    AchievementDefinitionEvent
-  > {}
+  extends AggregateRoot<AchievementId, AchievementDefinitionProps, AchievementDefinitionEvent> {}
 
-export type AchievementDefinitionEvent =
-  | AchievementDefinitionCreatedEvent
-  | AchievementDefinitionUpdatedEvent;
+export type AchievementDefinitionEvent = AchievementDefinitionCreatedEvent | AchievementDefinitionUpdatedEvent;
 
-export interface AchievementDefinitionCreatedEvent
-  extends DomainEvent<{ readonly code: string }> {}
+export interface AchievementDefinitionCreatedEvent extends DomainEvent<{ readonly code: string }> {}
 
-export interface AchievementDefinitionUpdatedEvent
-  extends DomainEvent<{ readonly code: string }> {}
+export interface AchievementDefinitionUpdatedEvent extends DomainEvent<{ readonly code: string }> {}
 
 export interface AchievementDefinitionRepository
   extends RepositoryPort<AchievementDefinitionAggregate, AchievementId> {
   findByCode(code: string): Promise<AchievementDefinitionAggregate | null>;
 }
 
-export const ACHIEVEMENT_DEFINITION_REPOSITORY = Symbol(
-  'ACHIEVEMENT_DEFINITION_REPOSITORY',
-);
+export const ACHIEVEMENT_DEFINITION_REPOSITORY = Symbol('ACHIEVEMENT_DEFINITION_REPOSITORY');
 
 export interface UserAchievementProps {
   readonly userId: UUID;
@@ -67,39 +56,26 @@ export interface UserAchievementProps {
 }
 
 export interface UserAchievementAggregate
-  extends AggregateRoot<
-    UserAchievementId,
-    UserAchievementProps,
-    UserAchievementEvent
-  > {}
+  extends AggregateRoot<UserAchievementId, UserAchievementProps, UserAchievementEvent> {}
 
 export type UserAchievementEvent = UserAchievementUnlockedEvent;
 
 export interface UserAchievementUnlockedEvent
-  extends DomainEvent<{
-    readonly userId: UUID;
-    readonly achievementId: AchievementId;
-  }> {}
+  extends DomainEvent<{ readonly userId: UUID; readonly achievementId: AchievementId }> {}
 
 export interface UserAchievementRepository
   extends RepositoryPort<UserAchievementAggregate, UserAchievementId> {
   listByUser(userId: UUID): Promise<readonly UserAchievementAggregate[]>;
 }
 
-export const USER_ACHIEVEMENT_REPOSITORY = Symbol(
-  'USER_ACHIEVEMENT_REPOSITORY',
-);
+export const USER_ACHIEVEMENT_REPOSITORY = Symbol('USER_ACHIEVEMENT_REPOSITORY');
 
 export interface EvaluateAchievementsCommand {
   readonly userId: UUID;
   readonly metricSnapshots: Record<string, number>;
 }
 
-export interface CreateAchievementDefinitionCommand
-  extends AchievementDefinitionProps {}
+export interface CreateAchievementDefinitionCommand extends AchievementDefinitionProps {}
 
 import { Command } from '../../../../core';
-export type AchievementUseCase<
-  TCommand extends Command<unknown>,
-  TResult,
-> = UseCase<TCommand, TResult>;
+export type AchievementUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

@@ -6,7 +6,9 @@ import {
   CreateSubscriptionCommand,
   ToggleSubscriptionMuteCommand,
 } from './subscriptions.domain.entity';
-import type { SubscriptionRepository } from './subscriptions.domain.entity';
+import type {
+  SubscriptionRepository,
+} from './subscriptions.domain.entity';
 
 @Injectable()
 export class SubscriptionsDomainService {
@@ -15,9 +17,7 @@ export class SubscriptionsDomainService {
     private readonly repository: SubscriptionRepository,
   ) {}
 
-  async create(
-    command: CreateSubscriptionCommand,
-  ): Promise<SubscriptionAggregate> {
+  async create(command: CreateSubscriptionCommand): Promise<SubscriptionAggregate> {
     // TODO: implement subscription creation logic
     throw new Error('SubscriptionsDomainService.create not implemented');
   }

@@ -17,8 +17,7 @@ export type VoteTargetType =
   | 'concept-relation'
   | 'comment';
 
-export interface VoteTarget
-  extends ValueObject<{ readonly id: UUID; readonly type: VoteTargetType }> {}
+export interface VoteTarget extends ValueObject<{ readonly id: UUID; readonly type: VoteTargetType }> {}
 
 export interface VoteProps {
   readonly voterId: UUID;
@@ -28,25 +27,16 @@ export interface VoteProps {
   readonly reason?: string;
 }
 
-export interface VoteAggregate
-  extends AggregateRoot<VoteId, VoteProps, VoteEvent> {}
+export interface VoteAggregate extends AggregateRoot<VoteId, VoteProps, VoteEvent> {}
 
 export type VoteEvent = VoteCastEvent | VoteRetractedEvent;
 
-export interface VoteCastEvent
-  extends DomainEvent<{
-    readonly target: VoteTarget;
-    readonly score: number;
-  }> {}
+export interface VoteCastEvent extends DomainEvent<{ readonly target: VoteTarget; readonly score: number }> {}
 
-export interface VoteRetractedEvent
-  extends DomainEvent<{ readonly target: VoteTarget }> {}
+export interface VoteRetractedEvent extends DomainEvent<{ readonly target: VoteTarget }> {}
 
 export interface VoteRepository extends RepositoryPort<VoteAggregate, VoteId> {
-  findByTarget(
-    target: VoteTarget,
-    voterId: UUID,
-  ): Promise<VoteAggregate | null>;
+  findByTarget(target: VoteTarget, voterId: UUID): Promise<VoteAggregate | null>;
   aggregateScore(target: VoteTarget): Promise<WeightedScore>;
 }
 
@@ -65,7 +55,4 @@ export interface RetractVoteCommand {
 }
 
 import { Command } from '../../../../core';
-export type VoteUseCase<TCommand extends Command<unknown>, TResult> = UseCase<
-  TCommand,
-  TResult
->;
+export type VoteUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

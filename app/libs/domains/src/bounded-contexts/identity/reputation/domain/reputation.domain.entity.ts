@@ -36,23 +36,16 @@ export interface ReputationLedgerProps {
 }
 
 export interface ReputationLedgerAggregate
-  extends AggregateRoot<
-    ReputationLedgerId,
-    ReputationLedgerProps,
-    ReputationEvent
-  > {}
+  extends AggregateRoot<ReputationLedgerId, ReputationLedgerProps, ReputationEvent> {}
 
 export interface ReputationLedgerRepository
   extends RepositoryPort<ReputationLedgerAggregate, ReputationLedgerId> {
   findByUserId(userId: UUID): Promise<ReputationLedgerAggregate | null>;
 }
 
-export const REPUTATION_LEDGER_REPOSITORY = Symbol(
-  'REPUTATION_LEDGER_REPOSITORY',
-);
+export const REPUTATION_LEDGER_REPOSITORY = Symbol('REPUTATION_LEDGER_REPOSITORY');
 
-export interface ReputationEvent
-  extends DomainEvent<{ readonly userId: UUID; readonly delta: number }> {}
+export interface ReputationEvent extends DomainEvent<{ readonly userId: UUID; readonly delta: number }> {}
 
 export interface AdjustReputationCommand {
   readonly userId: UUID;
@@ -71,11 +64,8 @@ export interface ReputationTrendPoint {
   readonly total: number;
 }
 
-export interface ReputationAnalyticsPort
-  extends TimeSeriesPort<ReputationTrendPoint> {
-  collect(
-    range: TimeRangeFilter & { readonly userId: UUID },
-  ): Promise<readonly ReputationTrendPoint[]>;
+export interface ReputationAnalyticsPort extends TimeSeriesPort<ReputationTrendPoint> {
+  collect(range: TimeRangeFilter & { readonly userId: UUID }): Promise<readonly ReputationTrendPoint[]>;
 }
 
 export const REPUTATION_ANALYTICS_PORT = Symbol('REPUTATION_ANALYTICS_PORT');

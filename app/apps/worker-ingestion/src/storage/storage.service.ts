@@ -38,8 +38,7 @@ export class StorageService {
       slug: articleName,
       title: articleName,
     };
-    const article =
-      await this.articlesDomainService.create(createArticleCommand);
+    const article = await this.articlesDomainService.create(createArticleCommand);
 
     const blocks = translatedArticles.map(({ lang, content }, index) => ({
       lang,

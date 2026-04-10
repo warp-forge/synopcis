@@ -25,9 +25,7 @@ export class AchievementsDomainService {
     command: CreateAchievementDefinitionCommand,
   ): Promise<AchievementDefinitionAggregate> {
     // TODO: implement achievement definition creation logic
-    throw new Error(
-      'AchievementsDomainService.createDefinition not implemented',
-    );
+    throw new Error('AchievementsDomainService.createDefinition not implemented');
   }
 
   async evaluate(

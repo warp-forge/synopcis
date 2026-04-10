@@ -14,24 +14,16 @@ import { ConceptId } from '../../concepts/domain/concepts.domain.entity';
 
 export type BlockId = Identifier;
 
-export type BlockType =
-  | 'heading'
-  | 'paragraph'
-  | 'quote'
-  | 'list'
-  | 'image'
-  | 'table';
+export type BlockType = 'heading' | 'paragraph' | 'quote' | 'list' | 'image' | 'table';
 
-export interface BlockSource
-  extends ValueObject<{ readonly url: string; readonly title?: string }> {
+export interface BlockSource extends ValueObject<{ readonly url: string; readonly title?: string }> {
   readonly checksum?: string;
   readonly verifiedAt?: Date;
   readonly verdict?: 'pending' | 'verified' | 'rejected';
   readonly verificationNotes?: string;
 }
 
-export interface BlockAlternative
-  extends ValueObject<{ readonly content: string }> {
+export interface BlockAlternative extends ValueObject<{ readonly content: string }> {
   readonly language: string;
   readonly authorId: UUID;
   readonly createdAt: Date;
@@ -56,8 +48,7 @@ export interface BlockProps {
   readonly moderationFlags: readonly string[];
 }
 
-export interface BlockAggregate
-  extends AggregateRoot<BlockId, BlockProps, BlockEvent> {}
+export interface BlockAggregate extends AggregateRoot<BlockId, BlockProps, BlockEvent> {}
 
 export type BlockEvent =
   | BlockCreatedEvent
@@ -66,33 +57,23 @@ export type BlockEvent =
   | BlockSourceVerifiedEvent
   | BlockReorderedEvent;
 
-export interface BlockCreatedEvent
-  extends DomainEvent<{ readonly articleId: ArticleId }> {}
+export interface BlockCreatedEvent extends DomainEvent<{ readonly articleId: ArticleId }> {}
 
 export interface BlockAlternativeAddedEvent
-  extends DomainEvent<{
-    readonly alternativeId: UUID;
-    readonly language: string;
-  }> {}
+  extends DomainEvent<{ readonly alternativeId: UUID; readonly language: string }> {}
 
 export interface BlockPrimaryAlternativeChangedEvent
   extends DomainEvent<{ readonly alternativeId: UUID }> {}
 
 export interface BlockSourceVerifiedEvent
-  extends DomainEvent<{
-    readonly sourceUrl: string;
-    readonly verdict: string;
-  }> {}
+  extends DomainEvent<{ readonly sourceUrl: string; readonly verdict: string }> {}
 
 export interface BlockReorderedEvent
   extends DomainEvent<{ readonly from: number; readonly to: number }> {}
 
-export interface BlockRepository
-  extends RepositoryPort<BlockAggregate, BlockId> {
+export interface BlockRepository extends RepositoryPort<BlockAggregate, BlockId> {
   listByArticle(articleId: ArticleId): Promise<readonly BlockAggregate[]>;
-  findPrimaryByConcept(
-    conceptId: ConceptId,
-  ): Promise<readonly BlockAggregate[]>;
+  findPrimaryByConcept(conceptId: ConceptId): Promise<readonly BlockAggregate[]>;
 }
 
 export const BLOCK_REPOSITORY = Symbol('BLOCK_REPOSITORY');
@@ -130,7 +111,7 @@ export interface VerifyBlockSourceCommand {
   readonly notes?: string;
 }
 
-export type BlockUseCase<TCommand extends Command, TResult> = UseCase<
-  TCommand,
-  TResult
->;
+export type BlockUseCase<
+  TCommand extends Command,
+  TResult,
+> = UseCase<TCommand, TResult>;

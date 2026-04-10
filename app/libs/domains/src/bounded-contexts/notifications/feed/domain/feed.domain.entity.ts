@@ -38,31 +38,23 @@ export interface FeedTimelineEntry {
 
 export interface FeedTimelineRepository
   extends RepositoryPort<any, FeedEventId> {
-  loadTimeline(
-    recipientId: UUID,
-    query: Query,
-  ): Promise<PaginatedResult<FeedTimelineEntry>>;
+  loadTimeline(recipientId: UUID, query: Query): Promise<PaginatedResult<FeedTimelineEntry>>;
 }
 
 export const FEED_TIMELINE_REPOSITORY = Symbol('FEED_TIMELINE_REPOSITORY');
 
-export interface BuildFeedCommand
-  extends Command<{
-    readonly recipientId: UUID;
-    readonly since?: Date;
-  }> {}
+export interface BuildFeedCommand extends Command<{
+  readonly recipientId: UUID;
+  readonly since?: Date;
+}> {}
 
-export interface MarkFeedEntryReadCommand
-  extends Command<{
-    readonly entryId: FeedEventId;
-    readonly recipientId: UUID;
-  }> {}
+export interface MarkFeedEntryReadCommand extends Command<{
+  readonly entryId: FeedEventId;
+  readonly recipientId: UUID;
+}> {}
 
 export interface FeedUseCases {
-  readonly buildPersonalFeed: UseCase<
-    BuildFeedCommand,
-    PaginatedResult<FeedTimelineEntry>
-  >;
+  readonly buildPersonalFeed: UseCase<BuildFeedCommand, PaginatedResult<FeedTimelineEntry>>;
   readonly markEntryRead: UseCase<MarkFeedEntryReadCommand, void>;
 }
 
