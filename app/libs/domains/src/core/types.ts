@@ -15,10 +15,8 @@ export interface Timestamped {
   readonly updatedAt: Date;
 }
 
-export interface DomainEntity<
-  TId extends Identifier = Identifier,
-  TProps = unknown,
-> extends Timestamped {
+export interface DomainEntity<TId extends Identifier = Identifier, TProps = unknown>
+  extends Timestamped {
   readonly id: TId;
   readonly props: TProps;
 }

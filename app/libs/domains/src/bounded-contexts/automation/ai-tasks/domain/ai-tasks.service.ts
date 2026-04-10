@@ -7,7 +7,9 @@ import {
   FailAiTaskCommand,
   RequestAiTaskCommand,
 } from './ai-tasks.domain.entity';
-import type { AiTaskRepository } from './ai-tasks.domain.entity';
+import type {
+  AiTaskRepository,
+} from './ai-tasks.domain.entity';
 
 @Injectable()
 export class AiTasksDomainService {

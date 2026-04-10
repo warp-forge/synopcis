@@ -7,7 +7,9 @@ import {
   CreateCollectionCommand,
   RemoveArticleFromCollectionCommand,
 } from './collections.domain.entity';
-import type { CollectionRepository } from './collections.domain.entity';
+import type {
+  CollectionRepository,
+} from './collections.domain.entity';
 
 @Injectable()
 export class CollectionsDomainService {
@@ -39,8 +41,6 @@ export class CollectionsDomainService {
     command: ChangeCollectionVisibilityCommand,
   ): Promise<CollectionAggregate> {
     // TODO: implement change visibility logic
-    throw new Error(
-      'CollectionsDomainService.changeVisibility not implemented',
-    );
+    throw new Error('CollectionsDomainService.changeVisibility not implemented');
   }
 }

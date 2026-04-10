@@ -6,7 +6,9 @@ import {
   EditCommentCommand,
   ModerateCommentCommand,
 } from './discussions.domain.entity';
-import type { DiscussionRepository } from './discussions.domain.entity';
+import type {
+  DiscussionRepository,
+} from './discussions.domain.entity';
 
 @Injectable()
 export class DiscussionsDomainService {

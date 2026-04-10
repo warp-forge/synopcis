@@ -14,9 +14,7 @@ export class FeedDomainService {
     private readonly repository: FeedTimelineRepository,
   ) {}
 
-  async build(
-    command: BuildFeedCommand,
-  ): Promise<readonly FeedTimelineEntry[]> {
+  async build(command: BuildFeedCommand): Promise<readonly FeedTimelineEntry[]> {
     // TODO: implement feed building logic
     throw new Error('FeedDomainService.build not implemented');
   }

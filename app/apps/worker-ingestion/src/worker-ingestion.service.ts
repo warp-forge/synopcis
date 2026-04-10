@@ -37,13 +37,8 @@ export class WorkerIngestionService {
 
   async aiDraft(task: TaskMessage<AiDraftPayload>) {
     const { phenomenonSlug, wikipediaArticle, lang, userId } = task.payload;
-    this.logger.log(
-      `Generating AI draft for "${phenomenonSlug}" from "${wikipediaArticle}" in ${lang}`,
-    );
-    const { content } = await this.wikipediaService.getArticle(
-      wikipediaArticle,
-      lang,
-    );
+    this.logger.log(`Generating AI draft for "${phenomenonSlug}" from "${wikipediaArticle}" in ${lang}`);
+    const { content } = await this.wikipediaService.getArticle(wikipediaArticle, lang);
     const blocks = await lastValueFrom(
       this.natsClient.send(
         TaskType.AI_GENERATE_BLOCKS,
@@ -55,11 +50,7 @@ export class WorkerIngestionService {
     );
     // TODO: get author from user session
     const author = { name: userId, email: `${userId}@synop.one` };
-    await this.storageService.storePhenomenonBlocks(
-      phenomenonSlug,
-      blocks,
-      author,
-    );
+    await this.storageService.storePhenomenonBlocks(phenomenonSlug, blocks, author);
     this.processed.push({
       id: task.id,
       articleName: wikipediaArticle,
@@ -77,23 +68,15 @@ export class WorkerIngestionService {
 
   async ingestWikipedia(task: TaskMessage<IngestionPayload>) {
     const { articleName, languages } = task.payload;
-    this.logger.log(
-      `Processing article "${articleName}" in languages: ${languages.join(', ')}`,
-    );
+    this.logger.log(`Processing article "${articleName}" in languages: ${languages.join(', ')}`);
 
     const articles = await Promise.all(
       languages.map(async (lang) => {
         try {
-          const article = await this.wikipediaService.getArticle(
-            articleName,
-            lang,
-          );
+          const article = await this.wikipediaService.getArticle(articleName, lang);
           return { lang, content: article.content };
         } catch (error) {
-          this.logger.error(
-            `Failed to fetch article "${articleName}" in ${lang}`,
-            error,
-          );
+          this.logger.error(`Failed to fetch article "${articleName}" in ${lang}`, error);
           return { lang, content: '', error };
         }
       }),
@@ -133,10 +116,7 @@ export class WorkerIngestionService {
       }),
     );
 
-    await this.storageService.storeArticle(
-      articleName,
-      translatedArticles.filter((a) => !a.error),
-    );
+    await this.storageService.storeArticle(articleName, translatedArticles.filter((a) => !a.error));
 
     this.processed.push({
       id: task.id,

@@ -14,15 +14,20 @@ export interface CreatePhenomenonInput {
 }
 
 export interface AddAlternativeInput {
+  repository: string;
   blockId: string;
   title: string;
   level: number;
   content: string;
+  lang: string;
+  sourceUrl?: string;
   authorId: string;
 }
 
 export interface VoteInput {
-  alternativeId: string;
+  repository: string;
+  blockId: string;
+  file: string;
   userId: string;
 }
 
@@ -45,7 +50,7 @@ export class PhenomenonDomainService {
   ): Promise<PhenomenonEntity> {
     const phenomenon = this.phenomenonRepository.create({
       id: uuidv4(),
-      slug: input.title.toLowerCase().replace(/\\s+/g, '-'),
+      slug: input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       userId: input.userId,
     });
     return this.phenomenonRepository.save(phenomenon);
@@ -63,22 +68,30 @@ export class PhenomenonDomainService {
     input: AddAlternativeInput,
   ): Promise<PhenomenonAlternativeEntity> {
     const block = await this.blockRepository.findOne({
-      where: { id: input.blockId },
-      relations: ['alternatives'],
+      where: { id: input.blockId, phenomenon: { slug: input.repository } },
+      relations: ['alternatives', 'phenomenon'],
     });
+
     if (!block) {
-      throw new Error(`Block with id ${input.blockId} not found`);
+      throw new Error(`Block with id ${input.blockId} for repository ${input.repository} not found`);
     }
 
     const isFirst = block.alternatives.length === 0;
 
+    const safeTitle = input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const alternativeId = uuidv4();
+    const file = `${input.lang}/${block.id.slice(0, 3)}-${safeTitle}-${alternativeId.slice(0, 4)}.md`;
+
     const alternative = this.alternativeRepository.create({
-      id: uuidv4(),
+      id: alternativeId,
       block,
       title: input.title,
       level: input.level,
       content: input.content,
       authorId: input.authorId,
+      lang: input.lang,
+      sourceUrl: input.sourceUrl,
+      file,
       isActive: isFirst,
     });
 
@@ -87,12 +100,12 @@ export class PhenomenonDomainService {
 
   async voteForAlternative(input: VoteInput): Promise<PhenomenonVoteEntity> {
     const alternative = await this.alternativeRepository.findOne({
-      where: { id: input.alternativeId },
+      where: { file: input.file, block: { id: input.blockId, phenomenon: { slug: input.repository } } },
       relations: ['block'],
     });
 
     if (!alternative) {
-      throw new Error(`Alternative with id ${input.alternativeId} not found`);
+      throw new Error(`Alternative with file ${input.file} not found for block ${input.blockId}`);
     }
 
     let userWeight = 1;
@@ -105,7 +118,7 @@ export class PhenomenonDomainService {
     }
 
     let vote = await this.voteRepository.findOne({
-      where: { alternative: { id: input.alternativeId }, userId: input.userId },
+      where: { alternative: { id: alternative.id }, userId: input.userId },
     });
 
     if (vote) {

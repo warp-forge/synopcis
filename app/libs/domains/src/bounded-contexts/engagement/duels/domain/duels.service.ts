@@ -6,7 +6,9 @@ import {
   RegisterDuelVoteCommand,
   CancelDuelCommand,
 } from './duels.domain.entity';
-import type { DuelRepository } from './duels.domain.entity';
+import type {
+  DuelRepository,
+} from './duels.domain.entity';
 
 @Injectable()
 export class DuelsDomainService {
@@ -20,7 +22,9 @@ export class DuelsDomainService {
     throw new Error('DuelsDomainService.start not implemented');
   }
 
-  async registerVote(command: RegisterDuelVoteCommand): Promise<DuelAggregate> {
+  async registerVote(
+    command: RegisterDuelVoteCommand,
+  ): Promise<DuelAggregate> {
     // TODO: implement duel voting logic
     throw new Error('DuelsDomainService.registerVote not implemented');
   }

@@ -5,9 +5,6 @@ export class CreateRenderTaskDto {
   slug!: string;
 
   @IsOptional()
-  @IsUrl(
-    { protocols: ['http', 'https'] },
-    { message: 'source must be a valid URL' },
-  )
+  @IsUrl({ protocols: ['http', 'https'] }, { message: 'source must be a valid URL' })
   source?: string;
 }

@@ -7,7 +7,9 @@ import {
   RenderJobEvent,
   ScheduleRenderCommand,
 } from './rendering.domain.entity';
-import type { RenderJobRepository } from './rendering.domain.entity';
+import type {
+  RenderJobRepository,
+} from './rendering.domain.entity';
 
 @Injectable()
 export class RenderingDomainService {

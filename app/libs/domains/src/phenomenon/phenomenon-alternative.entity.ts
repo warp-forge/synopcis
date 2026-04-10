@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { PhenomenonBlockEntity } from './phenomenon-block.entity';
 import { PhenomenonVoteEntity } from './phenomenon-vote.entity';
 
@@ -27,6 +21,15 @@ export class PhenomenonAlternativeEntity {
 
   @Column()
   authorId: string;
+
+  @Column()
+  lang: string;
+
+  @Column()
+  file: string;
+
+  @Column({ nullable: true })
+  sourceUrl?: string;
 
   @Column({ default: false })
   isActive: boolean;

@@ -1,9 +1,4 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
 export class InitialSchema1678886400000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -195,46 +190,46 @@ export class InitialSchema1678886400000 implements MigrationInterface {
     );
 
     await queryRunner.createTable(
-      new Table({
-        name: 'users',
-        columns: [
-          {
-            name: 'id',
-            type: 'serial',
-            isPrimary: true,
-          },
-          {
-            name: 'username',
-            type: 'varchar',
-            isUnique: true,
-          },
-          {
-            name: 'email',
-            type: 'varchar',
-            isUnique: true,
-          },
-          {
-            name: 'created_at',
-            type: 'timestamptz',
-            default: 'now()',
-          },
-          {
-            name: 'updated_at',
-            type: 'timestamptz',
-            default: 'now()',
-          },
-        ],
-      }),
+        new Table({
+            name: 'users',
+            columns: [
+                {
+                    name: 'id',
+                    type: 'serial',
+                    isPrimary: true,
+                },
+                {
+                    name: 'username',
+                    type: 'varchar',
+                    isUnique: true,
+                },
+                {
+                    name: 'email',
+                    type: 'varchar',
+                    isUnique: true,
+                },
+                {
+                    name: 'created_at',
+                    type: 'timestamptz',
+                    default: 'now()',
+                },
+                {
+                    name: 'updated_at',
+                    type: 'timestamptz',
+                    default: 'now()',
+                },
+            ],
+        }),
     );
 
     await queryRunner.createForeignKey(
-      'article_concepts',
-      new TableForeignKey({
-        columnNames: ['author_id'],
-        referencedColumnNames: ['id'],
-        referencedTableName: 'users',
-        onDelete: 'CASCADE',
-      }),
+        'article_concepts',
+        new TableForeignKey({
+            columnNames: ['author_id'],
+            referencedColumnNames: ['id'],
+            referencedTableName: 'users',
+            onDelete: 'CASCADE',
+        }),
     );
   }
 

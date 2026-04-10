@@ -23,30 +23,19 @@ export interface SubscriptionProps {
 export interface SubscriptionAggregate
   extends AggregateRoot<SubscriptionId, SubscriptionProps, SubscriptionEvent> {}
 
-export type SubscriptionEvent =
-  | SubscriptionCreatedEvent
-  | SubscriptionCancelledEvent
-  | SubscriptionMutedEvent;
+export type SubscriptionEvent = SubscriptionCreatedEvent | SubscriptionCancelledEvent | SubscriptionMutedEvent;
 
 export interface SubscriptionCreatedEvent
   extends DomainEvent<{ readonly followerId: UUID; readonly targetId: UUID }> {}
 
-export interface SubscriptionCancelledEvent
-  extends DomainEvent<{ readonly followerId: UUID; readonly targetId: UUID }> {}
+export interface SubscriptionCancelledEvent extends DomainEvent<{ readonly followerId: UUID; readonly targetId: UUID }> {}
 
 export interface SubscriptionMutedEvent
-  extends DomainEvent<{
-    readonly followerId: UUID;
-    readonly targetId: UUID;
-    readonly muted: boolean;
-  }> {}
+  extends DomainEvent<{ readonly followerId: UUID; readonly targetId: UUID; readonly muted: boolean }> {}
 
 export interface SubscriptionRepository
   extends RepositoryPort<SubscriptionAggregate, SubscriptionId> {
-  listFollowers(
-    targetId: UUID,
-    targetType: SubscriptionTargetType,
-  ): Promise<readonly SubscriptionAggregate[]>;
+  listFollowers(targetId: UUID, targetType: SubscriptionTargetType): Promise<readonly SubscriptionAggregate[]>;
   listFollowing(userId: UUID): Promise<readonly SubscriptionAggregate[]>;
 }
 
@@ -69,7 +58,4 @@ export interface ToggleSubscriptionMuteCommand {
   readonly performedBy: UUID;
 }
 
-export type SubscriptionUseCase<
-  TCommand extends Command<unknown>,
-  TResult,
-> = UseCase<TCommand, TResult>;
+export type SubscriptionUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

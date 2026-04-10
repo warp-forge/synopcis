@@ -3,10 +3,7 @@ import wiki from 'wikipedia-js';
 
 @Injectable()
 export class WikipediaService {
-  async getArticle(
-    articleName: string,
-    lang: string,
-  ): Promise<{ content: string }> {
+  async getArticle(articleName: string, lang: string): Promise<{ content: string }> {
     const options = {
       apiUrl: `http://${lang}.wikipedia.org/w/api.php`,
       origin: '*',

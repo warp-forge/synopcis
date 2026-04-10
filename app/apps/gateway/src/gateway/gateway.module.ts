@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { GatewayController } from './gateway.controller';
-import { PhenomenonController } from './phenomenon.controller';
+import { BlocksController } from './blocks.controller';
 import { GatewayService } from './gateway.service';
 import { SharedKernelModule } from '@synop/shared-kernel';
 import { AchievementsModule, PhenomenonModule } from '@synop/domains';
@@ -23,7 +23,7 @@ import { AuthModule } from '../auth/auth.module';
       },
     ]),
   ],
-  controllers: [GatewayController, PhenomenonController],
+  controllers: [GatewayController, BlocksController],
   providers: [GatewayService],
 })
 export class GatewayModule {}

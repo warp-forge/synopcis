@@ -76,10 +76,7 @@ describe('PhenomenonDomainService Voting', () => {
   describe('addAlternative', () => {
     it('should create an alternative and set it as active if it is the first one', async () => {
       const blockId = 'block-1';
-      mockBlockRepo.findOne.mockResolvedValue({
-        id: blockId,
-        alternatives: [],
-      });
+      mockBlockRepo.findOne.mockResolvedValue({ id: blockId, alternatives: [] });
       mockAlternativeRepo.create.mockReturnValue({
         id: 'alt-1',
         block: { id: blockId },
@@ -87,14 +84,18 @@ describe('PhenomenonDomainService Voting', () => {
         level: 1,
         content: 'Content',
         authorId: 'author-1',
+        lang: 'en',
+        file: 'en/blo-title-alt-.md',
         isActive: true,
       });
 
       const alt = await service.addAlternative({
+        repository: 'phenomenon-1',
         blockId,
         title: 'Title',
         level: 1,
         content: 'Content',
+        lang: 'en',
         authorId: 'author-1',
       });
 
@@ -104,10 +105,7 @@ describe('PhenomenonDomainService Voting', () => {
 
     it('should create an alternative and set it as inactive if it is not the first one', async () => {
       const blockId = 'block-1';
-      mockBlockRepo.findOne.mockResolvedValue({
-        id: blockId,
-        alternatives: [{ id: 'alt-1' }],
-      });
+      mockBlockRepo.findOne.mockResolvedValue({ id: blockId, alternatives: [{ id: 'alt-1' }] });
       mockAlternativeRepo.create.mockReturnValue({
         id: 'alt-2',
         block: { id: blockId },
@@ -115,14 +113,18 @@ describe('PhenomenonDomainService Voting', () => {
         level: 1,
         content: 'Content',
         authorId: 'author-2',
+        lang: 'en',
+        file: 'en/blo-title-alt2.md',
         isActive: false,
       });
 
       const alt = await service.addAlternative({
+        repository: 'phenomenon-1',
         blockId,
         title: 'Title',
         level: 1,
         content: 'Content',
+        lang: 'en',
         authorId: 'author-2',
       });
 
@@ -154,28 +156,26 @@ describe('PhenomenonDomainService Voting', () => {
     it('should add a vote and recalculate active alternative', async () => {
       const alternativeId = 'alt-2';
       const blockId = 'block-1';
+      const file = 'en/file.md';
 
       const alternative = { id: alternativeId, block: { id: blockId } };
       mockAlternativeRepo.findOne.mockResolvedValue(alternative);
       mockVoteRepo.findOne.mockResolvedValue(null);
-      mockVoteRepo.create.mockReturnValue({
-        id: 'vote-1',
-        alternative,
-        userId: 'user-1',
-        weight: 10,
-      });
+      mockVoteRepo.create.mockReturnValue({ id: 'vote-1', alternative, userId: 'user-1', weight: 10 });
 
       // Mock recalculateActiveAlternative internals
       mockBlockRepo.findOne.mockResolvedValue({
         id: blockId,
         alternatives: [
-          { id: 'alt-1', isActive: true, votes: [{ weight: 1 }] },
-          { id: 'alt-2', isActive: false, votes: [{ weight: 5 }] },
+            { id: 'alt-1', isActive: true, votes: [{ weight: 1 }] },
+            { id: 'alt-2', isActive: false, votes: [{ weight: 10 }] }
         ],
       });
 
       const vote = await service.voteForAlternative({
-        alternativeId,
+        repository: 'phenomenon-1',
+        blockId,
+        file,
         userId: 'user-1',
       });
 

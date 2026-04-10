@@ -27,8 +27,7 @@ export interface TeamProps {
   readonly ownership: Ownership;
 }
 
-export interface TeamAggregate
-  extends AggregateRoot<TeamId, TeamProps, TeamEvent> {}
+export interface TeamAggregate extends AggregateRoot<TeamId, TeamProps, TeamEvent> {}
 
 export type TeamEvent =
   | TeamCreatedEvent
@@ -36,14 +35,11 @@ export type TeamEvent =
   | TeamMemberRemovedEvent
   | TeamRoleChangedEvent;
 
-export interface TeamCreatedEvent
-  extends DomainEvent<{ readonly name: string }> {}
+export interface TeamCreatedEvent extends DomainEvent<{ readonly name: string }> {}
 
-export interface TeamMemberInvitedEvent
-  extends DomainEvent<{ readonly userId: UUID; readonly role: TeamRole }> {}
+export interface TeamMemberInvitedEvent extends DomainEvent<{ readonly userId: UUID; readonly role: TeamRole }> {}
 
-export interface TeamMemberRemovedEvent
-  extends DomainEvent<{ readonly userId: UUID }> {}
+export interface TeamMemberRemovedEvent extends DomainEvent<{ readonly userId: UUID }> {}
 
 export interface TeamRoleChangedEvent
   extends DomainEvent<{ readonly userId: UUID; readonly role: TeamRole }> {}
@@ -81,7 +77,4 @@ export interface ChangeTeamRoleCommand {
   readonly changedBy: UUID;
 }
 
-export type TeamUseCase<TCommand extends Command<unknown>, TResult> = UseCase<
-  TCommand,
-  TResult
->;
+export type TeamUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;

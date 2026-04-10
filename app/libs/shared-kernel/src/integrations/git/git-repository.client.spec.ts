@@ -115,10 +115,7 @@ describe('LocalGitRepositoryClient', () => {
     });
 
     const baseContent = await client.readFile(repository, primaryPath);
-    const alternativeContent = await client.readFile(
-      repository,
-      alternativePath,
-    );
+    const alternativeContent = await client.readFile(repository, alternativePath);
 
     expect(baseContent).toContain('# Biography');
     expect(alternativeContent).toContain('# Biography (Academic)');
@@ -163,13 +160,11 @@ describe('LocalGitRepositoryClient', () => {
     });
     expect(history[0].files).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({
-          path: formatBlockFilePath({
-            lang: 'ru',
-            blockId: 1,
-            label: 'Введение',
-          }),
-        }),
+        expect.objectContaining({ path: formatBlockFilePath({
+          lang: 'ru',
+          blockId: 1,
+          label: 'Введение',
+        }) }),
       ]),
     );
 

@@ -1,10 +1,4 @@
-import {
-  IsISO8601,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUrl,
-} from 'class-validator';
+import { IsISO8601, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class UpdateFileDto {
   @IsString()
