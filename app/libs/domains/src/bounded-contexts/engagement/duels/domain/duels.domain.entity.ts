@@ -29,7 +29,8 @@ export interface DuelProps {
   readonly createdBy: UUID;
 }
 
-export interface DuelAggregate extends AggregateRoot<DuelId, DuelProps, DuelEvent> {}
+export interface DuelAggregate
+  extends AggregateRoot<DuelId, DuelProps, DuelEvent> {}
 
 export type DuelEvent =
   | DuelStartedEvent
@@ -37,14 +38,24 @@ export type DuelEvent =
   | DuelCompletedEvent
   | DuelCancelledEvent;
 
-export interface DuelStartedEvent extends DomainEvent<{ readonly left: DuelCandidate; readonly right: DuelCandidate }> {}
+export interface DuelStartedEvent
+  extends DomainEvent<{
+    readonly left: DuelCandidate;
+    readonly right: DuelCandidate;
+  }> {}
 
 export interface DuelVoteRegisteredEvent
-  extends DomainEvent<{ readonly duelId: DuelId; readonly side: 'left' | 'right'; readonly voterId: UUID }> {}
+  extends DomainEvent<{
+    readonly duelId: DuelId;
+    readonly side: 'left' | 'right';
+    readonly voterId: UUID;
+  }> {}
 
-export interface DuelCompletedEvent extends DomainEvent<{ readonly winner: 'left' | 'right' | 'draw' }> {}
+export interface DuelCompletedEvent
+  extends DomainEvent<{ readonly winner: 'left' | 'right' | 'draw' }> {}
 
-export interface DuelCancelledEvent extends DomainEvent<{ readonly reason: string }> {}
+export interface DuelCancelledEvent
+  extends DomainEvent<{ readonly reason: string }> {}
 
 export interface DuelRepository extends RepositoryPort<DuelAggregate, DuelId> {
   listActive(): Promise<readonly DuelAggregate[]>;
@@ -71,4 +82,7 @@ export interface CancelDuelCommand {
 }
 
 import { Command } from '../../../../core';
-export type DuelUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;
+export type DuelUseCase<TCommand extends Command<unknown>, TResult> = UseCase<
+  TCommand,
+  TResult
+>;

@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { PhenomenonEntity } from './phenomenon.entity';
+import { PhenomenonAlternativeEntity } from './phenomenon-alternative.entity';
 
 @Entity({ name: 'phenomenon_blocks' })
 export class PhenomenonBlockEntity {
@@ -8,6 +15,12 @@ export class PhenomenonBlockEntity {
 
   @ManyToOne(() => PhenomenonEntity, (phenomenon) => phenomenon.blocks)
   phenomenon: PhenomenonEntity;
+
+  @OneToMany(
+    () => PhenomenonAlternativeEntity,
+    (alternative) => alternative.block,
+  )
+  alternatives: PhenomenonAlternativeEntity[];
 
   @Column()
   path: string;

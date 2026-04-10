@@ -13,7 +13,8 @@ export type UserId = Identifier;
 
 export type UserRole = 'user' | 'moderator' | 'admin';
 
-export interface UserProfile extends ValueObject<{ readonly displayName: string }> {
+export interface UserProfile
+  extends ValueObject<{ readonly displayName: string }> {
   readonly bio?: string;
   readonly avatarUrl?: string;
   readonly location?: string;
@@ -41,7 +42,8 @@ export interface UserRestriction {
   readonly imposedBy: UUID;
 }
 
-export interface UserAggregate extends AggregateRoot<UserId, UserProps, UserEvent> {}
+export interface UserAggregate
+  extends AggregateRoot<UserId, UserProps, UserEvent> {}
 
 export type UserEvent =
   | UserRegisteredEvent
@@ -50,16 +52,20 @@ export type UserEvent =
   | UserRestrictionAppliedEvent
   | UserRestrictionLiftedEvent;
 
-export interface UserRegisteredEvent extends DomainEvent<{ readonly email: string }> {}
+export interface UserRegisteredEvent
+  extends DomainEvent<{ readonly email: string }> {}
 
-export interface UserProfileUpdatedEvent extends DomainEvent<{ readonly profile: UserProfile }> {}
+export interface UserProfileUpdatedEvent
+  extends DomainEvent<{ readonly profile: UserProfile }> {}
 
-export interface UserRoleChangedEvent extends DomainEvent<{ readonly role: UserRole }> {}
+export interface UserRoleChangedEvent
+  extends DomainEvent<{ readonly role: UserRole }> {}
 
 export interface UserRestrictionAppliedEvent
   extends DomainEvent<{ readonly restriction: UserRestriction }> {}
 
-export interface UserRestrictionLiftedEvent extends DomainEvent<{ readonly restrictionId: UUID }> {}
+export interface UserRestrictionLiftedEvent
+  extends DomainEvent<{ readonly restrictionId: UUID }> {}
 
 export interface UserRepository extends RepositoryPort<UserAggregate, UserId> {
   findByEmail(email: string): Promise<UserAggregate | null>;
@@ -96,4 +102,7 @@ export interface LiftUserRestrictionCommand {
   readonly performedBy: UUID;
 }
 
-export type UserUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;
+export type UserUseCase<TCommand extends Command<unknown>, TResult> = UseCase<
+  TCommand,
+  TResult
+>;

@@ -28,7 +28,9 @@ export interface ConsumeOptions {
 @Injectable()
 export class TaskQueueService implements OnModuleDestroy {
   private readonly logger = new Logger(TaskQueueService.name);
-  private readonly stream$ = new Subject<TaskMessage<Record<string, unknown>>>();
+  private readonly stream$ = new Subject<
+    TaskMessage<Record<string, unknown>>
+  >();
   private readonly errors$ = new Subject<TaskProcessingError>();
   private readonly subscriptions = new Set<Subscription>();
 
@@ -42,9 +44,9 @@ export class TaskQueueService implements OnModuleDestroy {
   onTask<TPayload extends Record<string, unknown>>(
     type: TaskType,
   ): Observable<TaskMessage<TPayload>> {
-    return this.stream$.pipe(filter((task) => task.type === type)) as Observable<
-      TaskMessage<TPayload>
-    >;
+    return this.stream$.pipe(
+      filter((task) => task.type === type),
+    ) as Observable<TaskMessage<TPayload>>;
   }
 
   consume<TPayload extends Record<string, unknown>>(

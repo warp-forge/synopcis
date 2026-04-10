@@ -44,20 +44,35 @@ export type DiscussionEvent =
   | CommentRestoredEvent;
 
 export interface CommentAddedEvent
-  extends DomainEvent<{ readonly commentId: CommentId; readonly parentId?: CommentId }> {}
+  extends DomainEvent<{
+    readonly commentId: CommentId;
+    readonly parentId?: CommentId;
+  }> {}
 
 export interface CommentEditedEvent
-  extends DomainEvent<{ readonly commentId: CommentId; readonly editorId: UUID }> {}
+  extends DomainEvent<{
+    readonly commentId: CommentId;
+    readonly editorId: UUID;
+  }> {}
 
-export interface CommentHiddenEvent extends DomainEvent<{ readonly commentId: CommentId; readonly reason: string }> {}
+export interface CommentHiddenEvent
+  extends DomainEvent<{
+    readonly commentId: CommentId;
+    readonly reason: string;
+  }> {}
 
 export interface CommentRestoredEvent
-  extends DomainEvent<{ readonly commentId: CommentId; readonly moderatorId: UUID }> {}
+  extends DomainEvent<{
+    readonly commentId: CommentId;
+    readonly moderatorId: UUID;
+  }> {}
 
 export interface DiscussionRepository
   extends RepositoryPort<DiscussionAggregate, DiscussionId> {
   findByBlockId(blockId: any): Promise<DiscussionAggregate | null>;
-  listActive(pagination: { readonly limit: number }): Promise<PaginatedResult<DiscussionAggregate>>;
+  listActive(pagination: {
+    readonly limit: number;
+  }): Promise<PaginatedResult<DiscussionAggregate>>;
 }
 
 export const DISCUSSION_REPOSITORY = Symbol('DISCUSSION_REPOSITORY');
@@ -85,4 +100,7 @@ export interface ModerateCommentCommand {
 }
 
 import { Command } from '../../../../core';
-export type DiscussionUseCase<TCommand extends Command<unknown>, TResult> = UseCase<TCommand, TResult>;
+export type DiscussionUseCase<
+  TCommand extends Command<unknown>,
+  TResult,
+> = UseCase<TCommand, TResult>;
