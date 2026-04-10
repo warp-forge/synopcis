@@ -126,7 +126,7 @@ export default async function PhenomenonPage({
           {phenomenon.title}
         </Title>
         {phenomenon.cardData && (
-          <PhenomenonCard properties={phenomenon.cardData.properties} />
+          <PhenomenonCard phenomenonSlug={phenomenon.slug} properties={phenomenon.cardData.properties} />
         )}
         <PhenomenonView phenomenon={phenomenon} manifest={manifest} />
       </Container>
