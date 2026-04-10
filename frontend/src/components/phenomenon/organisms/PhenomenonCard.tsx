@@ -22,7 +22,8 @@ export default function PhenomenonCard({ phenomenonSlug, properties: initialProp
   const [valText, setValText] = useState('');
   const [valSlug, setValSlug] = useState('');
 
-  if (!properties || properties.length === 0) return null;
+  // Fixed: Do not return null if properties are empty, so the user can add the first property
+  // if (!properties) return null;
 
   const handleVote = async (index: number) => {
     const prop = properties[index];
@@ -55,6 +56,8 @@ export default function PhenomenonCard({ phenomenonSlug, properties: initialProp
         await proposeAlternative(phenomenonSlug, newProperty);
 
         // Optimistically update the UI
+        // Note: For a "propose" action, normally we wouldn't overwrite the canonical value immediately,
+        // but since this is a stubbed flow, we'll update it to reflect the change visually.
         const updatedProps = [...properties];
         updatedProps[editingIndex] = newProperty;
         setProperties(updatedProps);
@@ -104,38 +107,44 @@ export default function PhenomenonCard({ phenomenonSlug, properties: initialProp
           </Group>
         </Card.Section>
 
-        <Table striped highlightOnHover>
-          <Table.Tbody>
-            {properties.map((prop, idx) => (
-              <Table.Tr key={idx}>
-                <Table.Td>
-                  <Text fw={500} size="sm">
-                    {prop.property.text}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Anchor href={`/phenomena/${prop.value.slug}`} size="sm">
-                    {prop.value.text}
-                  </Anchor>
-                </Table.Td>
-                <Table.Td>
-                  <Group justify="flex-end" gap="xs">
-                    <Tooltip label="Vote">
-                      <ActionIcon aria-label="Vote" variant="subtle" color="green" onClick={() => handleVote(idx)}>
-                        <IconThumbUp size="1rem" />
-                      </ActionIcon>
-                    </Tooltip>
-                    <Tooltip label="Propose Alternative">
-                      <ActionIcon aria-label="Propose Alternative" variant="subtle" color="blue" onClick={() => handleEditClick(idx)}>
-                        <IconEdit size="1rem" />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+        {properties.length > 0 ? (
+          <Table striped highlightOnHover>
+            <Table.Tbody>
+              {properties.map((prop, idx) => (
+                <Table.Tr key={idx}>
+                  <Table.Td>
+                    <Text fw={500} size="sm">
+                      {prop.property.text}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Anchor href={`/phenomena/${prop.value.slug}`} size="sm">
+                      {prop.value.text}
+                    </Anchor>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group justify="flex-end" gap="xs">
+                      <Tooltip label="Vote">
+                        <ActionIcon aria-label="Vote" variant="subtle" color="green" onClick={() => handleVote(idx)}>
+                          <IconThumbUp size="1rem" />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label="Propose Alternative">
+                        <ActionIcon aria-label="Propose Alternative" variant="subtle" color="blue" onClick={() => handleEditClick(idx)}>
+                          <IconEdit size="1rem" />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        ) : (
+          <Text size="sm" c="dimmed" mt="md">
+            No properties found for this phenomenon. Be the first to add one!
+          </Text>
+        )}
       </Card>
 
       <Modal opened={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Propose Alternative">

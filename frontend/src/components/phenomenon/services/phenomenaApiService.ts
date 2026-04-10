@@ -1,7 +1,5 @@
 import { Phenomenon, CardProperty } from '@/types/phenomenon';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-
 // Existing stubbed methods to prevent build errors in create/page.tsx
 export const createPhenomenon = async (title: string): Promise<Phenomenon> => {
     return {} as Phenomenon;
@@ -10,47 +8,23 @@ export const generateAIDraft = async (title: string): Promise<Phenomenon> => {
     return {} as Phenomenon;
 };
 
-// New methods for PhenomenonCard using fetch
-export const voteForProperty = async (phenomenonSlug: string, propertySlug: string, valueSlug: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/phenomena/${phenomenonSlug}/properties/${propertySlug}/vote`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ valueSlug }),
-  });
+// --- Backend Blocker explicitly marked here ---
+// NOTE: As of now, there is no canonical merged backend contract for the phenomenon card editing flow (Task 012).
+// The edit/add/vote flows below are isolated behind this service boundary and use stubbed implementations.
+// Once a dedicated backend contract for the article-to-value-concept relationship (where the parent concept is the property)
+// is merged, replace these stubs with actual fetch calls.
 
-  if (!response.ok) {
-    throw new Error('Failed to vote for property');
-  }
+export const voteForProperty = async (phenomenonSlug: string, propertySlug: string, valueSlug: string): Promise<void> => {
+  console.log(`[STUB] API Call: Voted for property ${propertySlug} -> ${valueSlug} in phenomenon ${phenomenonSlug}`);
+  return Promise.resolve();
 };
 
 export const proposeAlternative = async (phenomenonSlug: string, property: CardProperty): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/phenomena/${phenomenonSlug}/properties`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(property),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to propose alternative property');
-  }
+  console.log(`[STUB] API Call: Proposing alternative for ${property.property.slug} in phenomenon ${phenomenonSlug}`);
+  return Promise.resolve();
 };
 
 export const addProperty = async (phenomenonSlug: string, property: CardProperty): Promise<void> => {
-  // Adding a new property is technically the same as proposing an alternative to a non-existent one
-  // or depends on specific backend routing. We will use a standard POST.
-  const response = await fetch(`${API_BASE_URL}/phenomena/${phenomenonSlug}/properties`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(property),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to add new property');
-  }
+  console.log(`[STUB] API Call: Adding new property ${property.property.slug} to phenomenon ${phenomenonSlug}`);
+  return Promise.resolve();
 };
