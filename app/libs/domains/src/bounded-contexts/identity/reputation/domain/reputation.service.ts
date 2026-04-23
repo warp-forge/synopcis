@@ -36,4 +36,13 @@ export class ReputationDomainService {
     // TODO: implement reputation trend retrieval
     throw new Error('ReputationDomainService.getTrend not implemented');
   }
+
+  async getUserReputationScore(userId: string): Promise<number> {
+    try {
+      const ledger = await this.repository.findByUserId(userId as any);
+      return ledger ? ledger.props.total || 1 : 1;
+    } catch {
+      return 1;
+    }
+  }
 }
