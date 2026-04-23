@@ -37,7 +37,10 @@ export interface RenderJobRepository
 export const RENDER_JOB_REPOSITORY = Symbol('RENDER_JOB_REPOSITORY');
 
 export interface RenderJobEvent
-  extends DomainEvent<{ readonly articleId: any; readonly status: RenderJobStatus }> {}
+  extends DomainEvent<{
+    readonly articleId: any;
+    readonly status: RenderJobStatus;
+  }> {}
 
 export interface ScheduleRenderCommand {
   readonly articleId: any;

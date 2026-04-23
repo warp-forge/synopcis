@@ -17,7 +17,9 @@ export class Label {
   @Column({ type: 'integer' })
   concept_id!: number;
 
-  @ManyToOne(() => Concept, (concept) => concept.labels, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Concept, (concept) => concept.labels, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'concept_id' })
   concept!: Concept;
 

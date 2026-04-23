@@ -25,7 +25,9 @@ export interface AnalyticsDataset {
 }
 
 export interface AnalyticsPort extends TimeSeriesPort<AnalyticsPoint> {
-  collect(range: TimeRangeFilter & { readonly widgetCode: string }): Promise<readonly AnalyticsPoint[]>;
+  collect(
+    range: TimeRangeFilter & { readonly widgetCode: string },
+  ): Promise<readonly AnalyticsPoint[]>;
 }
 
 export const ANALYTICS_PORT = Symbol('ANALYTICS_PORT');
@@ -50,7 +52,11 @@ export const ANALYTICS_METRICS = Symbol('ANALYTICS_METRICS');
 
 export interface AnalyticsIngestionPort {
   readonly metrics: MetricsPort;
-  ingest(event: { readonly name: string; readonly value?: number; readonly labels?: Record<string, string> }): Promise<void>;
+  ingest(event: {
+    readonly name: string;
+    readonly value?: number;
+    readonly labels?: Record<string, string>;
+  }): Promise<void>;
 }
 
 //TODO Wire up analytics ingestion with Prometheus/OpenTelemetry exporters.

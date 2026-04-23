@@ -54,8 +54,8 @@ describe('WorkerIngestionService', () => {
       payload: { articleName, languages },
     });
 
-    (wikipediaService.getArticle as jest.Mock).mockImplementation((name, lang) =>
-      Promise.resolve({ content: `content in ${lang}` }),
+    (wikipediaService.getArticle as jest.Mock).mockImplementation(
+      (name, lang) => Promise.resolve({ content: `content in ${lang}` }),
     );
 
     await service.ingestWikipedia(task);

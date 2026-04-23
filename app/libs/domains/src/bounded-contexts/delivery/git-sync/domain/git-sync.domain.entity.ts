@@ -23,7 +23,10 @@ export interface GitMirrorAggregate
   extends AggregateRoot<GitMirrorId, GitMirrorProps, GitMirrorEvent> {}
 
 export interface GitMirrorEvent
-  extends DomainEvent<{ readonly articleSlug: string; readonly status: 'success' | 'failed' }> {}
+  extends DomainEvent<{
+    readonly articleSlug: string;
+    readonly status: 'success' | 'failed';
+  }> {}
 
 export interface ScheduleGitMirrorCommand {
   readonly articleSlug: string;

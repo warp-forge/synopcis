@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import {
-  ArticlesDomainModule,
-  PhenomenonModule,
-} from '@synop/domains';
+import { ArticlesDomainModule, PhenomenonModule } from '@synop/domains';
 import { WorkerIngestionController } from './worker-ingestion.controller';
 import { WorkerIngestionService } from './worker-ingestion.service';
 import { WikipediaService } from './wikipedia/wikipedia.service';

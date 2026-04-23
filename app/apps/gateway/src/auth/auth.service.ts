@@ -10,9 +10,16 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(nickname: string, pass: string): Promise<{ access_token: string }> {
+  async login(
+    nickname: string,
+    pass: string,
+  ): Promise<{ access_token: string }> {
     const user = await this.userService.findByNickname(nickname);
-    if (!user || !user.password || !await bcrypt.compare(pass, user.password)) {
+    if (
+      !user ||
+      !user.password ||
+      !(await bcrypt.compare(pass, user.password))
+    ) {
       throw new UnauthorizedException('Invalid credentials');
     }
     const payload = { nickname: user.nickname, sub: user.id };
@@ -21,7 +28,11 @@ export class AuthService {
     };
   }
 
-  async register(nickname: string, email: string, pass: string): Promise<UserEntity> {
+  async register(
+    nickname: string,
+    email: string,
+    pass: string,
+  ): Promise<UserEntity> {
     const hashedPassword = await bcrypt.hash(pass, 10);
     return this.userService.create({
       nickname,

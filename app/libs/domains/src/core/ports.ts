@@ -36,13 +36,15 @@ export interface UnitOfWorkPort {
 }
 
 export interface AuditLogPort {
-  log(action: string, actorId: UUID, targetId: UUID, metadata?: unknown): Promise<void>;
+  log(
+    action: string,
+    actorId: UUID,
+    targetId: UUID,
+    metadata?: unknown,
+  ): Promise<void>;
 }
 
-export interface UseCase<
-  TCommand extends Command,
-  TResult,
-> {
+export interface UseCase<TCommand extends Command, TResult> {
   execute(command: TCommand): Promise<TResult>;
 }
 
@@ -52,8 +54,15 @@ export interface ProjectionPort<TProjection> {
 }
 
 export interface MetricsPort {
-  incrementCounter(metric: string, labels?: Record<string, string>): Promise<void>;
-  recordTiming(metric: string, milliseconds: number, labels?: Record<string, string>): Promise<void>;
+  incrementCounter(
+    metric: string,
+    labels?: Record<string, string>,
+  ): Promise<void>;
+  recordTiming(
+    metric: string,
+    milliseconds: number,
+    labels?: Record<string, string>,
+  ): Promise<void>;
 }
 
 export interface TimeSeriesPort<TPoint> {

@@ -8,9 +8,7 @@ import {
   ApplyUserRestrictionCommand,
   UserAggregate,
 } from './users.domain.entity';
-import type {
-  UserRepository,
-} from './users.domain.entity';
+import type { UserRepository } from './users.domain.entity';
 
 @Injectable()
 export class UsersDomainService {

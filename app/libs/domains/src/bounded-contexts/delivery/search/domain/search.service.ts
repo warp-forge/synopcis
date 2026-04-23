@@ -5,9 +5,7 @@ import {
   SearchConceptsQuery,
   SearchResult,
 } from './search.domain.entity';
-import type {
-  KnowledgeSearchPort,
-} from './search.domain.entity';
+import type { KnowledgeSearchPort } from './search.domain.entity';
 
 @Injectable()
 export class SearchDomainService {
